@@ -1,0 +1,20 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+
+}
+
+
+
+/* 確保 main 區域有足夠的底部間距 */
+main {
+    padding-bottom: 120px; /* 避免 footer 擋到內容 */
+}
+
+.container {
+    /* 確保容器在中間 */
+    margin: 0 auto;
+    padding-bottom: 40px; /* 避免 footer 擋到內容 */
+}
