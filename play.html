@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>遊戲類型 - Sanctuary</title>
+    <style>
+        /* 整體佈局與背景 */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #181c24; /* 與主頁面保持一致的背景色 */
+            color: #f5f6fa;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+            overflow-x: hidden; /* 防止水平滾動條 */
+        }
+        .main-container {
+            background-color: transparent; /* 主容器背景透明 */
+            padding: 40px;
+            border-radius: 15px;
+            text-align: center;
+            max-width: 1000px; /* 稍微增加最大寬度以容納內容 */
+            width: 100%;
+            margin-top: 50px;
+            z-index: 1; /* 確保內容在螢火蟲之上 */
+            position: relative; /* 為了後續絕對定位元素 */
+        }
+        h1 {
+            color: #80ffe7;
+            font-size: 2.5rem;
+            margin-bottom: 40px; /* 增加標題與類別選單的間距 */
+            text-shadow: 0 0 10px rgba(128, 255, 231, 0.4); /* 發光效果 */
+        }
+
+        /* 遊戲類別選單 (輪播效果) */
+        .category-carousel-wrapper {
+            width: 100%;
+            overflow: hidden; /* 隱藏超出部分 */
+            margin-bottom: 40px; /* 與下方遊戲列表的間距 */
+            position: relative; /* 為了絕對定位箭頭 */
+        }
+        .category-carousel {
+            display: flex;
+            justify-content: center; /* 初始時內容居中 */
+            align-items: center;
+            gap: 20px; /* 類別標題間距 */
+            padding: 10px 0;
+            transition: transform 0.5s ease-out; /* 平滑滑動動畫 */
+        }
+        .category-item {
+            cursor: pointer;
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: rgba(245, 246, 250, 0.4); /* 默認透明 */
+            transition: color 0.3s ease, transform 0.3s ease, opacity 0.3s ease, font-size 0.3s ease;
+            white-space: nowrap; /* 防止標題換行 */
+            flex-shrink: 0; /* 防止被擠壓 */
+        }
+        .category-item.active {
+            color: #80ffe7; /* 激活時顏色 */
+            font-size: 2.5rem; /* 激活時字體變大 */
+            transform: scale(1.1); /* 激活時稍微放大 */
+            opacity: 1; /* 激活時完全不透明 */
+            text-shadow: 0 0 8px rgba(128, 255, 231, 0.6);
+        }
+        /* 側邊透明效果 - 動態調整透明度會更複雜，這裡先做基本透明 */
+        .category-item.prev, .category-item.next {
+             opacity: 0.5; /* 旁邊的標題透明度 */
+             font-size: 1.5rem;
+             transform: scale(0.9);
+        }
+        .category-item.far-left, .category-item.far-right {
+            opacity: 0.2; /* 更遠的標題更透明 */
+            font-size: 1.2rem;
+            transform: scale(0.8);
+        }
+
+        /* 導航箭頭 */
+        .carousel-arrow {
+            position: absolute;
+            top: 50%; /* 垂直居中 */
+            transform: translateY(-50%);
+            background-color: rgba(128, 255, 231, 0.2);
+            color: #80ffe7;
+            border: none;
+            padding: 10px 15px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            border-radius: 50%;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            z-index: 10; /* 確保在輪播內容之上 */
+        }
+        .carousel-arrow:hover {
+            background-color: rgba(128, 255, 231, 0.4);
+            color: #fff;
+        }
+        .arrow-left { left: 10px; }
+        .arrow-right { right: 10px; }
+        .carousel-arrow:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        /* 遊戲列表容器 */
+        .game-list-container {
+            position: relative;
+            width: 100%;
+            overflow: hidden; /* 隱藏超出部分以實現滑動效果 */
+            min-height: 300px; /* 確保有足夠高度，避免內容跳動 */
+        }
+        .game-list-wrapper {
+            display: flex;
+            /* 修正: 這裡不需要動態寬度，因為每個 game-category-content 都是 100% 寬度 */
+            /* 透過 transform: translateX() 移動的距離是 gameListContainer 的倍數 */
+            transition: transform 0.6s ease-in-out; /* 滑動動畫 */
+        }
+        .game-category-content {
+            width: 100%; /* 每個遊戲類別內容佔據容器的100% */
+            flex-shrink: 0; /* 防止內容被擠壓 */
+            flex-basis: 100%; /* Ensure it takes 100% of flex container's available space */
+            padding: 20px 0;
+            display: flex;
+            flex-direction: column; /* 遊戲卡片垂直堆疊 */
+            gap: 15px; /* 遊戲卡片間距 */
+            align-items: center; /* 讓內部遊戲卡片在容器中水平居中 */
+        }
+
+        /* 遊戲卡片樣式 (與歌單相似) */
+        .game-card {
+            background-color: rgba(90, 98, 112, 0.1); /* 半透明背景 */
+            border: 1px solid rgba(128, 255, 231, 0.2); /* 淺色邊框用於區分 */
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            display: flex; /* 讓圖片、標題、連結在卡片內部水平排列 */
+            align-items: center; /* 垂直居中對齊 */
+            padding: 15px 20px;
+            transition: background-color 0.4s ease, transform 0.3s ease, box-shadow 0.3s ease, border-color 0.4s ease; /* 平滑過渡效果 */
+            text-align: left; /* 文本左對齊 */
+            width: calc(100% - 40px); /* 考慮 padding，讓卡片佔滿寬度 */
+            max-width: 800px; /* 限制遊戲卡片的最大寬度 */
+        }
+        .game-card:hover {
+            background-color: rgba(90, 98, 112, 0.6); /* 鼠標懸停時更顯著 */
+            transform: translateY(-5px); /* 鼠標懸停時浮起動畫 */
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5); /* 鼠標懸停時陰影更明顯 */
+            border-color: #80ffe7; /* 鼠標懸停時邊框更亮 */
+        }
+        .game-card img {
+            width: 70px;
+            height: 70px;
+            border-radius: 8px;
+            object-fit: cover; /* 圖片裁剪以適應容器 */
+            object-position: center;
+            margin-right: 20px;
+            flex-shrink: 0; /* 防止圖片縮小 */
+        }
+        .game-card h3 {
+            font-size: 1.25rem;
+            margin: 0;
+            color: #f5f6fa;
+            flex-grow: 1; /* 標題佔據剩餘空間 */
+            white-space: nowrap; /* 不換行 */
+            overflow: hidden; /* 超出部分隱藏 */
+            text-overflow: ellipsis; /* 超出部分顯示省略號 */
+        }
+        .game-card-links {
+            display: flex;
+            gap: 15px; /* 連結按鈕間距 */
+            margin-left: 20px;
+            flex-shrink: 0; /* 防止連結按鈕縮小 */
+        }
+        .game-card-links a {
+            background-color: rgba(109, 118, 133, 0.7); /* 連結按鈕稍微透明 */
+            color: #f5f6fa;
+            padding: 10px 18px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 1rem;
+            transition: background-color 0.3s ease;
+            white-space: nowrap; /* 防止按鈕文字換行 */
+        }
+        .game-card-links a:hover {
+            background-color: #6a7280; /* 鼠標懸停時顏色變化 */
+        }
+
+        /* 返回按鈕 (原來的 play.html 中的返回按鈕) */
+        .back-button-play {
+            background-color: #ffe780; /* 暖色系按鈕 */
+            color: #181c24;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            text-decoration: none; /* 移除下劃線 */
+            display: inline-block; /* 讓 margin-top 生效 */
+            margin-top: 30px;
+        }
+        .back-button-play:hover {
+            background-color: #ffda47;
+            transform: translateY(-2px); /* 鼠標懸停時輕微上浮 */
+        }
+
+        /* --- 新增：返回按鈕容器樣式 (從 music.html 複製) --- */
+        .back-buttons-container {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 10; /* 確保在最上層 */
+        }
+
+        /* --- 新增：返回按鈕樣式 (從 music.html 複製) --- */
+        .back-button {
+            background: none;
+            border: none;
+            padding: 0;
+            cursor: pointer;
+        }
+
+        .back-button svg {
+            width: 40px;
+            height: 40px;
+            stroke: #ffe780;
+            fill: none;
+            transition: transform 0.2s ease, stroke 0.2s ease;
+            filter: drop-shadow(0 0 5px rgba(255, 231, 128, 0.5));
+        }
+
+        .back-button:hover svg {
+            transform: scale(1.1);
+            stroke: #fff;
+        }
+
+
+        /* 螢火蟲背景樣式 (保持不變) */
+        .firefly-container {
+            position: fixed; /* 固定在視窗中 */
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none; /* 不會阻擋鼠標事件 */
+            z-index: 0; /* 確保在內容之下 */
+            overflow: hidden;
+        }
+        .firefly {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: radial-gradient(circle, #ffe780 0%, transparent 70%); /* 螢火蟲發光效果 */
+            border-radius: 50%; /* 圓形 */
+            opacity: 0; /* 初始不可見 */
+            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+        }
+
+        /* RWD 響應式調整 */
+        @media (max-width: 768px) {
+            .main-container {
+                padding: 20px;
+                margin-top: 20px;
+            }
+            h1 {
+                font-size: 2rem;
+            }
+            .category-item {
+                font-size: 1.4rem;
+            }
+            .category-item.active {
+                font-size: 2rem;
+            }
+            .category-item.prev, .category-item.next {
+                font-size: 1.2rem;
+            }
+            .category-item.far-left, .category-item.far-right {
+                font-size: 1rem;
+            }
+            .carousel-arrow {
+                padding: 8px 12px;
+                font-size: 1.2rem;
+            }
+            .arrow-left { left: 5px; }
+            .arrow-right { right: 5px; }
+
+            .game-card {
+                flex-direction: column; /* 小螢幕下垂直堆疊 */
+                align-items: center; /* 居中對齊 */
+                padding: 15px;
+                width: calc(100% - 30px); /* 調整寬度 */
+            }
+            .game-card img {
+                width: 80px; /* 圖片稍大一些 */
+                height: 80px;
+                margin-right: 0;
+                margin-bottom: 10px; /* 圖片下方留白 */
+            }
+            .game-card h3 {
+                font-size: 1.1rem;
+                text-align: center; /* 標題居中 */
+                width: 100%; /* 標題佔滿寬度 */
+                margin-bottom: 10px;
+                white-space: normal; /* 允許換行 */
+                overflow: visible; /* 不隱藏超出部分 */
+                text-overflow: clip; /* 不顯示省略號 */
+            }
+            .game-card-links {
+                flex-direction: row; /* 連結按鈕保持水平排列 */
+                gap: 10px;
+                margin-left: 0;
+                width: 100%; /* 連結按鈕佔滿寬度 */
+                justify-content: center; /* 連結按鈕居中 */
+            }
+            .game-card-links a {
+                padding: 8px 12px;
+                font-size: 0.9rem;
+            }
+            /* 調整返回按鈕在小螢幕上的位置，避免與標題重疊 */
+            .back-buttons-container {
+                top: 10px;
+                left: 10px;
+            }
+            .back-button svg {
+                width: 35px;
+                height: 35px;
+            }
+        }
+        @media (max-width: 480px) {
+            .main-container {
+                padding: 15px;
+            }
+            h1 {
+                font-size: 1.8rem;
+            }
+            .category-item {
+                font-size: 1.2rem;
+            }
+            .category-item.active {
+                font-size: 1.8rem;
+            }
+            .category-item.prev, .category-item.next {
+                font-size: 1rem;
+            }
+            .category-item.far-left, .category-item.far-right {
+                font-size: 0.8rem;
+            }
+            .carousel-arrow {
+                padding: 6px 10px;
+                font-size: 1rem;
+            }
+            .game-card img {
+                width: 70px;
+                height: 70px;
+            }
+            .game-card h3 {
+                font-size: 1rem;
+            }
+            .game-card-links a {
+                padding: 7px 10px;
+                font-size: 0.85rem;
+            }
+            .back-button-play {
+                padding: 10px 20px;
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="firefly-container"></div>
+
+    <div class="back-buttons-container">
+        <button class="back-button" onclick="window.location.href='index.html'" aria-label="返回封面">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+            </svg>
+        </button>
+        <button class="back-button" onclick="window.location.href='choose.html'" aria-label="返回選單">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 14.25h13.5m-13.5 0a3 3 0 0 1-3-3m3 3a3 3 0 1 0 0 6h13.5a3 3 0 1 0 0-6m-16.5-3a3 3 0 0 1 3-3h13.5a3 3 0 0 1 3 3m-19.5 0a4.5 4.5 0 0 1 .9-2.7L5.737 5.1a3.375 3.375 0 0 1 2.7-1.35h7.126c1.062 0 2.062.5 2.7 1.35l2.587 3.45a4.5 4.5 0 0 1 .9 2.7m0 0a3 3 0 0 1-3 3m0 3h.008v.008h-.008v-.008Zm0-6h.008v.008h-.008v-.008Zm-3 6h.008v.008h-.008v-.008Zm0-6h.008v.008h-.008v-.008Z" />
+            </svg>
+        </button>
+    </div>
+
+    <div class="main-container">
+        <h1>遊戲類型</h1>
+
+        <div class="category-carousel-wrapper">
+            <button class="carousel-arrow arrow-left" id="prevCategory" aria-label="上一類別">◀</button>
+            <div class="category-carousel" id="categoryCarousel">
+            </div>
+            <button class="carousel-arrow arrow-right" id="nextCategory" aria-label="下一類別">▶</button>
+        </div>
+
+        <div class="game-list-container" id="gameListContainer">
+            <div class="game-list-wrapper" id="gameListWrapper">
+            </div>
+        </div>
+
+        
+    </div>
+
+    <script>
+        // 遊戲資料庫
+        const gameData = [
+            {
+                category: "休閒", // 遊戲類別名稱，這會顯示在中間選單上
+                games: [
+                    // 這是屬於"益智"類別的遊戲列表
+                    { title: "Piano Tiles 2™ - 鋼琴遊戲", image: "https://play-lh.googleusercontent.com/SO98nB4xzD75gNGDmo6c6GJiiBc2K31E3YfJn-lxnlFt1-10p1b0UY9ZRYB6j3kGfw=s48-rw", link: "https://play.google.com/store/apps/details?id=com.kooapps.pianotiles2gp&hl=zh_HK" },
+                    { title: "SpongeBob Adventures: In A Jam", image: "https://play-lh.googleusercontent.com/8Fi_VpNYHBMCtzcminHVeOrEJ0LY9MIQ5bhQH7EbOvzvGdNZWHJ-_rn4MNLEw2Sflf8I=s48-rw", link: "https://play.google.com/store/apps/details?id=com.tiltingpoint.sbadventures&hl=zh_HK" },
+                ]
+            },
+            {
+                category: "動作", // 第二個遊戲類別
+                games: [
+                    { title: "薑餅人之塔", image: "https://play-lh.googleusercontent.com/oSFvfLUNRcwyj9owv6880r7gAujIwCK6LuzxdHn_5qM4Q_lG0OM3AUu6UfSmnz2k6z8=s48-rw", link: "https://play.google.com/store/apps/details?id=com.devsisters.cba&pcampaignid=merch_published_cluster_promotion_battlestar_top_picks&hl=zh_HK" },
+                    { title: "原神", image: "https://play-lh.googleusercontent.com/COApsDZhST8LxhdmeMMESDsTy41xK4q0s4e32GITN63TUHZYSsXv74pf9utw66o7JozG=s48-rw", link: "https://play.google.com/store/apps/details?id=com.miHoYo.GenshinImpact&pcampaignid=merch_published_cluster_promotion_battlestar_top_picks&hl=zh_HK" }
+                ]
+            },
+            {
+                category: "恐怖",
+                games: [
+                    { title: "紙嫁衣", image: "https://play-lh.googleusercontent.com/4gLHZ0Tf6I6lfuxjdKAHB8ajKgZtLbpSBuMfpy4RU2RZRfDtYz6n3fSpyU-qta_5=s48-rw", link: "https://play.google.com/store/apps/details?id=com.funnygames.escape.zjyhw&hl=zh_HK" },
+                    { title: "返校", image: "https://play-lh.googleusercontent.com/YTbLFEOdUvK8akD4UQ93EbVevy1xW5hHgLg_xfdUDS_Xnzfo4RU06bN9el8x-j_N4g=s48-rw", link: "https://play.google.com/store/apps/details?id=com.redcandlegames.detention&hl=zh_HK" }
+                ]
+            },
+
+        ];
+
+        // activeGameIndex 代表目前顯示的是 gameListWrapper 中哪個 "實際類別" 的內容
+        // 而 transformPositionIndex 代表 gameListWrapper 需要移動到哪個位置 (包含複製的內容)
+        let activeCategoryIndex = 0; 
+        let transformPositionIndex = 1; // 初始位置為第一個實際類別 (因為前面複製了一個)
+
+        const categoryCarousel = document.getElementById('categoryCarousel');
+        const gameListContainer = document.getElementById('gameListContainer');
+        const gameListWrapper = document.getElementById('gameListWrapper');
+        const prevCategoryBtn = document.getElementById('prevCategory');
+        const nextCategoryBtn = document.getElementById('nextCategory');
+
+        // --- 類別選單相關功能 ---
+        function renderCategories() {
+            categoryCarousel.innerHTML = ''; // 清空現有類別
+            const totalCategories = gameData.length;
+            
+            let indicesToShow = [];
+            if (totalCategories === 0) {
+                // 沒有類別
+            } else if (totalCategories === 1) {
+                indicesToShow = [0];
+            } else if (totalCategories === 2) {
+                indicesToShow = [
+                    (activeCategoryIndex + totalCategories - 1) % totalCategories, // Prev
+                    activeCategoryIndex // Active
+                ];
+                if (activeCategoryIndex !== (totalCategories - 1)) {
+                    indicesToShow.push((activeCategoryIndex + 1) % totalCategories);
+                } else {
+                    indicesToShow.push(0);
+                }
+            } else { // totalCategories >= 3
+                indicesToShow = [
+                    (activeCategoryIndex + totalCategories - 1) % totalCategories, // 前一個
+                    activeCategoryIndex, // 中間
+                    (activeCategoryIndex + 1) % totalCategories // 後一個
+                ];
+                if (totalCategories >= 5) {
+                    indicesToShow.unshift((activeCategoryIndex + totalCategories - 2) % totalCategories); // 最左
+                    indicesToShow.push((activeCategoryIndex + 2) % totalCategories); // 最右
+                }
+            }
+            
+            indicesToShow.forEach((index, i) => {
+                const category = gameData[index];
+                const categoryItem = document.createElement('div');
+                categoryItem.className = 'category-item';
+                categoryItem.textContent = category.category;
+                categoryItem.dataset.index = index; // 存儲原始索引
+
+                if (index === activeCategoryIndex) {
+                    categoryItem.classList.add('active');
+                } else {
+                    if (totalCategories >= 5) {
+                        if (i === 0) categoryItem.classList.add('far-left');
+                        else if (i === 1) categoryItem.classList.add('prev');
+                        else if (i === 3) categoryItem.classList.add('next');
+                        else if (i === 4) categoryItem.classList.add('far-right');
+                    } else if (totalCategories === 3) {
+                        if (i === 0) categoryItem.classList.add('prev');
+                        else if (i === 2) categoryItem.classList.add('next');
+                    } else if (totalCategories === 2) {
+                        if (i === indicesToShow.indexOf(activeCategoryIndex) - 1 || 
+                            (indicesToShow.indexOf(activeCategoryIndex) === 0 && i === indicesToShow.length -1 ) ) {
+                            categoryItem.classList.add('prev');
+                        } else if (i === indicesToShow.indexOf(activeCategoryIndex) + 1 ||
+                                   (indicesToShow.indexOf(activeCategoryIndex) === indicesToShow.length - 1 && i === 0)) {
+                            categoryItem.classList.add('next');
+                        }
+                    }
+                }
+                
+                categoryItem.addEventListener('click', () => {
+                    const clickedIndex = parseInt(categoryItem.dataset.index);
+                    if (clickedIndex !== activeCategoryIndex) {
+                        // 當點擊類別時，計算新的 transformPositionIndex
+                        // 如果從 activeCategoryIndex 向左點擊到 clickedIndex
+                        // 或向右點擊到 clickedIndex
+                        const oldActive = activeCategoryIndex;
+                        activeCategoryIndex = clickedIndex;
+
+                        const diff = activeCategoryIndex - oldActive;
+                        transformPositionIndex += diff; // 簡單累加，後續瞬移處理
+                        
+                        renderContent(true); // 傳入 true 表示是點擊類別，需要動畫
+                        renderCategories(); 
+                    }
+                });
+                categoryCarousel.appendChild(categoryItem);
+            });
+
+            prevCategoryBtn.disabled = totalCategories <= 1;
+            nextCategoryBtn.disabled = totalCategories <= 1;
+
+            if (categoryCarousel.children.length > 0) {
+                const activeItem = categoryCarousel.querySelector('.category-item.active');
+                if (activeItem) {
+                    const carouselRect = categoryCarousel.getBoundingClientRect();
+                    const activeItemRect = activeItem.getBoundingClientRect();
+                    
+                    const scrollOffset = activeItemRect.left - carouselRect.left + (activeItemRect.width / 2) - (carouselRect.width / 2);
+                    
+                    categoryCarousel.style.transform = `translateX(${-scrollOffset}px)`;
+                }
+            }
+        }
+
+
+        // --- 遊戲內容渲染與切換 ---
+        // 增加一個參數 forSmoothTransition，用於判斷是否需要平滑動畫 (用於瞬移)
+        function renderContent(forSmoothTransition = false) {
+            gameListWrapper.innerHTML = ''; // 清空現有遊戲列表
+
+            const totalCategories = gameData.length;
+            if (totalCategories === 0) return;
+
+            // 步驟1: 複製內容以實現無限輪播
+            const contentToRender = [];
+            // 添加最後一個類別的副本作為開頭
+            contentToRender.push(gameData[totalCategories - 1]);
+            // 添加所有實際類別
+            gameData.forEach(category => contentToRender.push(category));
+            // 添加第一個類別的副本作為結尾
+            contentToRender.push(gameData[0]);
+
+            contentToRender.forEach((category, index) => {
+                const categoryContent = document.createElement('div');
+                categoryContent.className = 'game-category-content';
+                // 這裡的 ID 不再需要是 category-${index}，因為 index 會重複
+                // categoryContent.id = `category-${index}`; 
+
+                category.games.forEach(game => {
+                    const gameCard = document.createElement('div');
+                    gameCard.className = 'game-card';
+                    gameCard.innerHTML = `
+                        <img src="${game.image}" alt="${game.title} 遊戲封面">
+                        <h3>${game.title}</h3>
+                        <div class="game-card-links">
+                            <a href="${game.link}" target="_blank">安裝遊戲</a>
+                        </div>
+                    `;
+                    categoryContent.appendChild(gameCard);
+                });
+                gameListWrapper.appendChild(categoryContent);
+            });
+
+            // 步驟2: 設定滑動位置，並處理瞬移
+            const targetOffset = transformPositionIndex * -100;
+
+            if (!forSmoothTransition) { // 初始載入或從瞬移點設定
+                gameListWrapper.style.transition = 'none'; // 暫時關閉動畫
+                gameListWrapper.style.transform = `translateX(${targetOffset}%)`;
+                // 強制瀏覽器重繪 (這在一些情況下是必要的，確保 transition: none 生效)
+                gameListWrapper.offsetHeight; 
+                gameListWrapper.style.transition = 'transform 0.6s ease-in-out'; // 恢復動畫
+            } else {
+                gameListWrapper.style.transform = `translateX(${targetOffset}%)`;
+            }
+            
+            // 處理瞬移邏輯
+            if (transformPositionIndex === contentToRender.length - 1) { // 如果到達了最後一個（第一個的副本）
+                setTimeout(() => {
+                    gameListWrapper.style.transition = 'none'; // 暫時關閉動畫
+                    transformPositionIndex = 1; // 跳轉到實際的第一個位置
+                    gameListWrapper.style.transform = `translateX(${-100}%)`;
+                    gameListWrapper.offsetHeight; // 強制重繪
+                    gameListWrapper.style.transition = 'transform 0.6s ease-in-out'; // 恢復動畫
+                }, 600); // 等待動畫完成 (0.6s)
+            } else if (transformPositionIndex === 0) { // 如果到達了第一個（最後一個的副本）
+                setTimeout(() => {
+                    gameListWrapper.style.transition = 'none'; // 暫時關閉動畫
+                    transformPositionIndex = totalCategories; // 跳轉到實際的最後一個位置
+                    gameListWrapper.style.transform = `translateX(${totalCategories * -100}%)`;
+                    gameListWrapper.offsetHeight; // 強制重繪
+                    gameListWrapper.style.transition = 'transform 0.6s ease-in-out'; // 恢復動畫
+                }, 600); // 等待動畫完成 (0.6s)
+            }
+        }
+
+        // 導航箭頭事件監聽
+        prevCategoryBtn.addEventListener('click', () => {
+            if (gameData.length > 0) {
+                transformPositionIndex--; // 向左移動，索引減少
+                activeCategoryIndex = (activeCategoryIndex - 1 + gameData.length) % gameData.length; // 實際類別索引
+                renderContent(true); // 通知需要平滑動畫
+                renderCategories();
+            }
+        });
+
+        nextCategoryBtn.addEventListener('click', () => {
+            if (gameData.length > 0) {
+                transformPositionIndex++; // 向右移動，索引增加
+                activeCategoryIndex = (activeCategoryIndex + 1) % gameData.length; // 實際類別索引
+                renderContent(true); // 通知需要平滑動畫
+                renderCategories();
+            }
+        });
+
+
+        // --- 螢火蟲 JavaScript 邏輯 (保持不變) ---
+        const fireflyContainer = document.querySelector('.firefly-container');
+        const minFireflies = 15;
+        const fireflies = [];
+
+        function getRandomInt(min, max) {
+            min = Math.ceil(min);
+            max = Math.floor(max);
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        function animateFirefly(firefly) {
+            function flicker() {
+                firefly.style.left = `${getRandomInt(0, 100)}%`;
+                firefly.style.top = `${getRandomInt(0, 100)}%`;
+                firefly.style.display = 'block';
+
+                const flickerCount = getRandomInt(1, 3);
+                let currentFlicker = 0;
+                const singleFlickerDuration = getRandomInt(300, 600);
+                const pauseBetweenFlickers = getRandomInt(50, 150);
+
+                const doSingleFlicker = () => {
+                    if (currentFlicker < flickerCount) {
+                        firefly.style.opacity = 1;
+                        firefly.style.transform = `scale(${getRandomInt(10, 15) / 10})`;
+                        setTimeout(() => {
+                            firefly.style.opacity = 0;
+                            firefly.style.transform = 'scale(1)';
+                            currentFlicker++;
+                            if (currentFlicker < flickerCount) {
+                                setTimeout(doSingleFlicker, pauseBetweenFlickers);
+                            } else {
+                                const nextFlickerDelay = getRandomInt(1000, 5000);
+                                setTimeout(flicker, nextFlickerDelay);
+                            }
+                        }, singleFlickerDuration);
+                    }
+                };
+                doSingleFlicker();
+            }
+            const initialDelay = getRandomInt(0, 2000);
+            setTimeout(flicker, initialDelay);
+        }
+
+        // 初始化所有內容
+        document.addEventListener('DOMContentLoaded', () => {
+            // 創建螢火蟲
+            for (let i = 0; i < minFireflies; i++) {
+                const firefly = document.createElement('span');
+                firefly.className = 'firefly';
+                fireflyContainer.appendChild(firefly);
+                fireflies.push(firefly);
+                animateFirefly(firefly);
+            }
+            
+            if (gameData.length > 0) {
+                // 初始時，將 transformPositionIndex 設為 1 (指向第一個實際類別的位置)
+                transformPositionIndex = 1; 
+                activeCategoryIndex = 0; // 實際顯示的第一個類別
+                renderContent(); // 第一次載入時先渲染所有內容
+                renderCategories(); // 再渲染類別並設置正確的位置
+            } else {
+                gameListWrapper.innerHTML = '<p style="color: #ccc; margin-top: 50px;">目前沒有遊戲資料。</p>';
+                prevCategoryBtn.disabled = true;
+                nextCategoryBtn.disabled = true;
+            }
+        });
+
+        // 視窗大小改變時重新渲染，確保佈局正確
+        window.addEventListener('resize', () => {
+            if (gameData.length > 0) {
+                // 重新計算內容位置
+                // 由於 transformPositionIndex 已經是正確的，這裡只需要觸發 renderContent
+                renderContent(); 
+                
+                // 重新渲染類別位置
+                renderCategories(); 
+            }
+        });
+
+    </script>
+</body>
+</html>

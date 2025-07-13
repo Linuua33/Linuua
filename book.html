@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>避難所 - 閱讀領域</title>
+    <style>
+        /* --- 基本頁面樣式 --- */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #181c24; /* 與主頁面背景色一致 */
+            color: #f5f6fa;
+            display: flex;
+            flex-direction: column;
+            justify-content: center; /* 讓內容在中間 */
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden; /* 防止滾動條 */
+            position: relative;
+        }
+
+        /* --- 主內容區塊的動畫與定位 --- */
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center; /* 讓內容在主區塊內保持居中 */
+            opacity: 0; /* 初始隱藏 */
+            transform: translateY(50px); /* 初始位置偏下 */
+            animation: fadeInContent 1s ease-out forwards; /* 淡入動畫 */
+            animation-delay: 0.5s; /* 延遲動畫，讓螢火蟲先出現 */
+            z-index: 1; /* 內容層級，確保在螢火蟲之上 */
+            width: 90%; /* 確保內容區塊佔滿寬度 */
+            max-width: 900px;
+            text-align: center;
+        }
+
+        @keyframes fadeInContent {
+            from { opacity: 0; transform: translateY(50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- 標題與段落樣式 --- */
+        h1 {
+            font-size: 3rem;
+            color: #80ffe7; /* 標題顏色 */
+            margin-bottom: 20px;
+            text-shadow: 0 0 15px rgba(128, 255, 231, 0.5);
+        }
+
+        p {
+            font-size: 1.2rem;
+            max-width: 80%;
+            line-height: 1.6;
+            margin-bottom: 40px;
+        }
+
+        /* --- 書籍類別方塊容器 --- */
+        .book-categories {
+            display: flex;
+            gap: 40px; /* 方塊之間的間距 */
+            flex-wrap: wrap; /* 小螢幕下換行 */
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        /* --- 書籍類別方塊樣式 --- */
+        .category-block {
+            background-color: rgba(90, 98, 112, 0.15); /* 半透明背景 */
+            border: 2px solid #ffe780; /* 黃色邊框 */
+            border-radius: 15px;
+            padding: 30px 40px;
+            width: 300px; /* 固定寬度 */
+            height: 200px; /* 固定高度 */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .category-block:hover {
+            background-color: rgba(90, 98, 112, 0.3); /* 滑鼠懸停時顏色加深 */
+            border-color: #80ffe7; /* 邊框變色 */
+            transform: translateY(-8px); /* 向上浮動效果 */
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6); /* 陰影加深 */
+        }
+
+        .category-block h2 {
+            font-size: 2.2rem;
+            color: #ffe780; /* 標題顏色 */
+            margin-bottom: 15px;
+            text-shadow: 0 0 10px rgba(255, 231, 128, 0.4);
+        }
+
+        .category-block p.description {
+            font-size: 1rem;
+            color: rgba(245, 246, 250, 0.8);
+            line-height: 1.5;
+        }
+
+        /* --- 返回按鈕容器樣式 (從 music.html 複製) --- */
+        .back-buttons-container {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 10; /* 確保在最上層 */
+        }
+
+        /* --- 返回按鈕樣式 (從 music.html 複製) --- */
+        .back-button {
+            background: none;
+            border: none;
+            padding: 0;
+            cursor: pointer;
+        }
+
+        .back-button svg {
+            width: 40px;
+            height: 40px;
+            stroke: #ffe780;
+            fill: none;
+            transition: transform 0.2s ease, stroke 0.2s ease;
+            filter: drop-shadow(0 0 5px rgba(255, 231, 128, 0.5));
+        }
+
+        .back-button:hover svg {
+            transform: scale(1.1);
+            stroke: #fff;
+        }
+
+        /* --- 螢火蟲背景樣式 (保持不變) --- */
+        .firefly-container {
+            position: fixed;
+            top: 0;
+    left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .firefly {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: radial-gradient(circle, #ffe780 0%, transparent 70%);
+            border-radius: 50%;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+        }
+
+        /* --- 彈窗 (Modal) 樣式 --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7); /* 半透明黑色背景 */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100; /* 確保在最上層 */
+            opacity: 0; /* 初始隱藏 */
+            visibility: hidden; /* 初始隱藏 */
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background-color: rgba(40, 48, 60, 0.95); /* 彈窗背景色，略透明 */
+            border: 2px solid #80ffe7; /* 彈窗邊框 */
+            border-radius: 15px;
+            padding: 40px;
+            width: 90%;
+            max-width: 600px; /* 彈窗最大寬度 */
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+            position: relative;
+            transform: scale(0.9); /* 初始縮小 */
+            transition: transform 0.3s ease;
+            max-height: 80vh; /* 限制高度，可滾動 */
+            overflow-y: auto; /* 內容超出時滾動 */
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: scale(1); /* 彈出時放大 */
+        }
+
+        .modal-content h3 {
+            font-size: 2.5rem;
+            color: #ffe780;
+            margin-bottom: 25px;
+            text-shadow: 0 0 10px rgba(255, 231, 128, 0.4);
+            text-align: center;
+        }
+
+        .modal-link-list {
+            list-style: none; /* 移除列表點 */
+            padding: 0;
+            margin: 0;
+        }
+
+        .modal-link-list li {
+            margin-bottom: 15px;
+        }
+
+        .modal-link-list a {
+            display: block;
+            background-color: rgba(60, 68, 80, 0.6); /* 連結背景色 */
+            color: #80ffe7; /* 連結文字顏色 */
+            padding: 12px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(128, 255, 231, 0.3);
+            text-align: center;
+        }
+
+        .modal-link-list a:hover {
+            background-color: rgba(90, 98, 112, 0.8);
+            color: #fff;
+            transform: translateX(5px); /* 連結滑鼠懸停時向右移動 */
+            box-shadow: 0 0 15px rgba(128, 255, 231, 0.5);
+        }
+
+        .modal-close-button {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 2.5rem;
+            color: #f5f6fa;
+            cursor: pointer;
+            transition: transform 0.2s ease, color 0.2s ease;
+            line-height: 1; /* 讓X居中 */
+            text-shadow: 0 0 5px rgba(245, 246, 250, 0.5);
+        }
+
+        .modal-close-button:hover {
+            transform: rotate(90deg);
+            color: #ffe780;
+        }
+
+
+        /* --- RWD 響應式調整 --- */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+            p {
+                font-size: 1.1rem;
+                max-width: 90%;
+            }
+            .book-categories {
+                flex-direction: column; /* 小螢幕下垂直堆疊 */
+                gap: 25px; /* 垂直間距 */
+            }
+            .category-block {
+                width: 80%; /* 佔滿更多寬度 */
+                max-width: 350px; /* 但設定最大寬度 */
+                height: auto; /* 高度自適應 */
+                padding: 25px 30px;
+            }
+            .category-block h2 {
+                font-size: 2rem;
+            }
+            .back-buttons-container {
+                top: 10px;
+                left: 10px;
+            }
+            .back-button svg {
+                width: 35px;
+                height: 35px;
+            }
+            .modal-content {
+                padding: 30px;
+                max-width: 95%; /* 彈窗在小螢幕下佔更多寬度 */
+            }
+            .modal-content h3 {
+                font-size: 2rem;
+            }
+            .modal-link-list a {
+                font-size: 1rem;
+                padding: 10px 15px;
+            }
+            .modal-close-button {
+                font-size: 2rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 2rem;
+            }
+            p {
+                font-size: 1rem;
+                max-width: 95%;
+            }
+            .category-block {
+                width: 90%;
+                padding: 20px 25px;
+            }
+            .category-block h2 {
+                font-size: 1.8rem;
+            }
+            .back-buttons-container {
+                top: 5px;
+                left: 5px;
+            }
+            .back-button svg {
+                width: 30px;
+                height: 30px;
+            }
+            .modal-content {
+                padding: 20px;
+            }
+            .modal-content h3 {
+                font-size: 1.8rem;
+            }
+            .modal-link-list li {
+                margin-bottom: 10px;
+            }
+            .modal-link-list a {
+                font-size: 0.95rem;
+                padding: 8px 12px;
+            }
+            .modal-close-button {
+                font-size: 1.8rem;
+                top: 10px;
+                right: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="firefly-container"></div>
+
+    <div class="back-buttons-container">
+        <button class="back-button" onclick="window.location.href='index.html'" aria-label="返回封面">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+            </svg>
+        </button>
+        <button class="back-button" onclick="window.location.href='choose.html'" aria-label="返回選單">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 14.25h13.5m-13.5 0a3 3 0 0 1-3-3m3 3a3 3 0 1 0 0 6h13.5a3 3 0 1 0 0-6m-16.5-3a3 3 0 0 1 3-3h13.5a3 3 0 0 1 3 3m-19.5 0a4.5 4.5 0 0 1 .9-2.7L5.737 5.1a3.375 3.375 0 0 1 2.7-1.35h7.126c1.062 0 2.062.5 2.7 1.35l2.587 3.45a4.5 4.5 0 0 1 .9 2.7m0 0a3 3 0 0 1-3 3m0 3h.008v.008h-.008v-.008Zm0-6h.008v.008h-.008v-.008Zm-3 6h.008v.008h-.008v-.008Zm0-6h.008v.008h-.008v-.008Z" />
+            </svg>
+        </button>
+    </div>
+
+    <div class="main-content">
+        <h1>沉浸書海與漫畫世界</h1>
+        <p>探索奇幻的小說故事，或躍入精彩的漫畫宇宙，開啟你的閱讀冒險！</p>
+
+        <div class="book-categories">
+            <div class="category-block" id="novelBlock">
+                <h2>小說</h2>
+            </div>
+            <div class="category-block" id="comicBlock">
+                <h2>漫畫</h2>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="novelModal">
+        <div class="modal-content">
+            <button class="modal-close-button">&times;</button>
+            <h3>推薦小說網站</h3>
+            <ul class="modal-link-list">
+                <li><a href="https://www.books.com.tw/web/ebook?srsltid=AfmBOooDdSXq09_TAU1IoefHvaveh9mYcwCK5_QluAmjUv1tq1Z09aVm" target="_blank">博客來電子書</a></li>
+                <li><a href="https://www.jjwxc.net/" target="_blank">晉江文學城</a></li>
+                <li><a href="https://www.eslite.com/category/1/42187?gad_source=1&gad_campaignid=20869413778&gbraid=0AAAAAoLh2DnA9nUVWIpN4T_bZhwkuks_4&gclid=CjwKCAjw6s7CBhACEiwAuHQckmLjXKFZdLs-f0-5KOWckIjlRKLepYPRYgEHZLJHK5zV_gohPEolHxoCHL4QAvD_BwE" target="_blank">誠品線上圖書館</a></li>
+                <li><a href="https://www.popo.tw/index" target="_blank">POPO原創</a></li>
+                </ul>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="comicModal">
+        <div class="modal-content">
+            <button class="modal-close-button">&times;</button>
+            <h3>推薦漫畫網站</h3>
+            <ul class="modal-link-list">
+                <li><a href="https://www.webtoons.com/zh-hant/" target="_blank">LINE WEBTOON</a></li>
+                <li><a href="https://readmoo.com/?srsltid=AfmBOoq0lHpCWVtI-PRiC0bP0eIao8a5j63Cv2MFZliogmtVywLvWhTO" target="_blank">讀墨 Readmoo</a></li>
+                <li><a href="https://ebook.tongli.com.tw/" target="_blank">東立電子書城</a></li>
+                <li><a href="https://tw.myrenta.com/?srsltid=AfmBOorepzvKqa1TBh9KbmjOYZFZxCkb0E6etbFlv5aJ6_aK0oaGHria" target="_blank">亂搭！租書網</a></li>
+                </ul>
+        </div>
+    </div>
+    
+    <script>
+        // --- 螢火蟲 JavaScript 邏輯 (保持不變) ---
+        const fireflyContainer = document.querySelector('.firefly-container');
+        const minFireflies = 15;
+        const fireflies = [];
+
+        function getRandomInt(min, max) {
+            min = Math.ceil(min);
+            max = Math.floor(max);
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        function animateFirefly(firefly) {
+            function flicker() {
+                firefly.style.left = `${getRandomInt(0, 100)}%`;
+                firefly.style.top = `${getRandomInt(0, 100)}%`;
+                firefly.style.display = 'block';
+
+                const flickerCount = getRandomInt(1, 3);
+                let currentFlicker = 0;
+
+                const singleFlickerDuration = getRandomInt(300, 600);
+                const pauseBetweenFlickers = getRandomInt(50, 150);
+
+                const doSingleFlicker = () => {
+                    if (currentFlicker < flickerCount) {
+                        firefly.style.opacity = 1;
+                        firefly.style.transform = `scale(${getRandomInt(10, 15) / 10})`;
+                        setTimeout(() => {
+                            firefly.style.opacity = 0;
+                            firefly.style.transform = 'scale(1)';
+                            currentFlicker++;
+                            if (currentFlicker < flickerCount) {
+                                setTimeout(doSingleFlicker, pauseBetweenFlickers);
+                            } else {
+                                const nextFlickerDelay = getRandomInt(1000, 5000);
+                                setTimeout(flicker, nextFlickerDelay);
+                            }
+                        }, singleFlickerDuration);
+                    }
+                };
+                
+                doSingleFlicker();
+            }
+
+            const initialDelay = getRandomInt(0, 2000);
+            setTimeout(flicker, initialDelay);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // 初始化螢火蟲
+            for (let i = 0; i < minFireflies; i++) {
+                const firefly = document.createElement('span');
+                firefly.className = 'firefly';
+                fireflyContainer.appendChild(firefly);
+                fireflies.push(firefly);
+                animateFirefly(firefly);
+            }
+
+            // --- 彈窗 (Modal) 邏輯 ---
+            const novelBlock = document.getElementById('novelBlock');
+            const comicBlock = document.getElementById('comicBlock');
+            const novelModal = document.getElementById('novelModal');
+            const comicModal = document.getElementById('comicModal');
+            const closeButtons = document.querySelectorAll('.modal-close-button'); // 選擇所有關閉按鈕
+
+            // 開啟彈窗的函式
+            function openModal(modalId) {
+                document.getElementById(modalId).classList.add('active');
+                document.body.style.overflow = 'hidden'; // 禁止背景滾動
+            }
+
+            // 關閉彈窗的函式
+            function closeModal(modalId) {
+                document.getElementById(modalId).classList.remove('active');
+                document.body.style.overflow = ''; // 恢復背景滾動
+            }
+
+            // 為小說方塊添加點擊事件
+            novelBlock.addEventListener('click', () => {
+                openModal('novelModal');
+            });
+
+            // 為漫畫方塊添加點擊事件
+            comicBlock.addEventListener('click', () => {
+                openModal('comicModal');
+            });
+
+            // 為所有關閉按鈕添加點擊事件
+            closeButtons.forEach(button => {
+                button.addEventListener('click', (event) => {
+                    // 向上查找最近的 .modal-overlay 父元素
+                    const modalOverlay = event.target.closest('.modal-overlay');
+                    if (modalOverlay) {
+                        closeModal(modalOverlay.id);
+                    }
+                });
+            });
+
+            // 點擊彈窗外部區域關閉彈窗
+            novelModal.addEventListener('click', (event) => {
+                if (event.target === novelModal) {
+                    closeModal('novelModal');
+                }
+            });
+
+            comicModal.addEventListener('click', (event) => {
+                if (event.target === comicModal) {
+                    closeModal('comicModal');
+                }
+            });
+
+            // 按下 Esc 鍵關閉彈窗
+            document.addEventListener('keydown', (event) => {
+                if (event.key === 'Escape') {
+                    if (novelModal.classList.contains('active')) {
+                        closeModal('novelModal');
+                    }
+                    if (comicModal.classList.contains('active')) {
+                        closeModal('comicModal');
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

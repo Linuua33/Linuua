@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>避難所 - 美食領域</title>
+    <style>
+        /* --- 基本頁面樣式 --- */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #181c24; /* 與主頁面背景色一致 */
+            color: #f5f6fa;
+            display: flex;
+            flex-direction: column;
+            justify-content: center; /* 讓內容在中間 */
+            align-items: center;
+            height: 100vh; /* 確保佔滿整個視窗高度 */
+            margin: 0;
+            overflow: hidden; /* 防止滾動條 */
+            position: relative;
+        }
+
+        /* --- 主內容區塊的動畫與定位 --- */
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center; /* 讓內容在主區塊內保持居中 */
+            opacity: 0; /* 初始隱藏 */
+            transform: translateY(50px); /* 初始位置偏下 */
+            animation: fadeInContent 1s ease-out forwards; /* 淡入動畫 */
+            animation-delay: 0.5s; /* 延遲動畫，讓螢火蟲先出現 */
+            z-index: 1; /* 內容層級，確保在螢火蟲之上 */
+            width: 90%; /* 確保內容區塊佔滿寬度 */
+            max-width: 900px; /* 限制最大寬度 */
+            padding: 20px;
+            box-sizing: border-box;
+            flex-shrink: 0; /* 防止被壓縮 */
+        }
+
+        @keyframes fadeInContent {
+            from { opacity: 0; transform: translateY(50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- 標題與段落樣式 --- */
+        h1 {
+            font-size: 3rem;
+            color: #80ffe7; /* 標題顏色 */
+            margin-bottom: 15px; /* 減少間距 */
+            text-shadow: 0 0 15px rgba(128, 255, 231, 0.5);
+            text-align: center;
+        }
+
+        p {
+            font-size: 1.2rem;
+            text-align: center;
+            max-width: 80%;
+            line-height: 1.6;
+            margin-bottom: 30px; /* 減少間距 */
+        }
+
+        /* --- 搜索框樣式 --- */
+        .search-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            margin-bottom: 5px; /* 搜尋框與提示語的間距縮短 */
+        }
+
+        .search-input {
+            width: 70%;
+            padding: 15px 20px;
+            border: 2px solid #80ffe7;
+            border-radius: 10px;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: #f5f6fa;
+            font-size: 1.1rem;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .search-input::placeholder {
+            color: rgba(245, 246, 250, 0.6);
+        }
+
+        .search-input:focus {
+            border-color: #ffe780;
+            box-shadow: 0 0 15px rgba(255, 231, 128, 0.5);
+        }
+
+        .search-button {
+            background-color: #ffe780;
+            color: #181c24;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-left: 15px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .search-button:hover {
+            background-color: #ffda47;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
+        }
+
+        /* --- 提示語樣式 --- */
+        .search-tip {
+            font-size: 1rem;
+            color: rgba(245, 246, 250, 0.7);
+            text-align: center;
+            margin-top: 10px; /* 讓它靠近搜尋框 */
+            max-width: 80%;
+            line-height: 1.5;
+            /* 移除 margin-bottom: 50px; 避免底部空間過大 */
+        }
+
+        /* --- 返回按鈕容器樣式 --- */
+        .back-buttons-container {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 10;
+        }
+
+        /* --- 返回按鈕樣式 --- */
+        .back-button {
+            background: none;
+            border: none;
+            padding: 0;
+            cursor: pointer;
+        }
+
+        .back-button svg {
+            width: 40px;
+            height: 40px;
+            stroke: #ffe780;
+            fill: none;
+            transition: transform 0.2s ease, stroke 0.2s ease;
+            filter: drop-shadow(0 0 5px rgba(255, 231, 128, 0.5));
+        }
+
+        .back-button:hover svg {
+            transform: scale(1.1);
+            stroke: #fff;
+        }
+
+        /* --- 螢火蟲背景樣式 (保持不變) --- */
+        .firefly-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .firefly {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: radial-gradient(circle, #ffe780 0%, transparent 70%);
+            border-radius: 50%;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+        }
+
+        /* --- RWD 響應式調整 --- */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.2rem; /* 小螢幕標題再縮小一點 */
+                margin-bottom: 10px;
+            }
+            p {
+                font-size: 1rem; /* 段落字體更小 */
+                max-width: 90%;
+                margin-bottom: 20px;
+            }
+            .search-container {
+                flex-direction: column;
+                margin-bottom: 10px;
+            }
+            .search-input {
+                width: 90%;
+                margin-bottom: 15px;
+                padding: 12px 18px; /* 輸入框內邊距 */
+                font-size: 1rem;
+            }
+            .search-button {
+                margin-left: 0;
+                width: 90%;
+                padding: 12px 25px; /* 按鈕內邊距 */
+                font-size: 1rem;
+            }
+            .search-tip {
+                font-size: 0.9rem; /* 提示字體更小 */
+                margin-top: 5px; /* 提示語更靠近 */
+            }
+            .back-buttons-container {
+                top: 15px;
+                left: 15px;
+            }
+            .back-button svg {
+                width: 30px;
+                height: 30px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.8rem;
+                margin-bottom: 8px;
+            }
+            p {
+                font-size: 0.9rem;
+                max-width: 95%;
+                margin-bottom: 15px;
+            }
+            .search-input, .search-button {
+                padding: 10px 12px;
+                font-size: 0.9rem;
+            }
+            .search-tip {
+                font-size: 0.8rem;
+                margin-top: 3px;
+            }
+            .back-buttons-container {
+                top: 10px;
+                left: 10px;
+            }
+            .back-button svg {
+                width: 25px;
+                height: 25px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="firefly-container"></div>
+
+    <div class="back-buttons-container">
+        <button class="back-button" onclick="window.location.href='index.html'" aria-label="返回封面">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+            </svg>
+        </button>
+        <button class="back-button" onclick="window.location.href='choose.html'" aria-label="返回選單">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 14.25h13.5m-13.5 0a3 3 0 0 1-3-3m3 3a3 3 0 1 0 0 6h13.5a3 3 0 1 0 0-6m-16.5-3a3 3 0 0 1 3-3h13.5a3 3 0 0 1 3 3m-19.5 0a4.5 4.5 0 0 1 .9-2.7L5.737 5.1a3.375 3.375 0 0 1 2.7-1.35h7.126c1.062 0 2.062.5 2.7 1.35l2.587 3.45a4.5 4.5 0 0 1 .9 2.7m0 0a3 3 0 0 1-3 3m0 3h.008v.008h-.008v-.008Zm0-6h.008v.008h-.008v-.008Zm-3 6h.008v.008h-.008v-.008Zm0-6h.008v.008h-.008v-.008Z" />
+            </svg>
+        </button>
+    </div>
+
+    <div class="main-content">
+        <h1>探索美食天堂</h1>
+        <p>在這裡，你可以搜尋你感興趣的美食，找到附近的美味餐廳！</p>
+
+        <div class="search-container">
+            <input type="text" id="foodSearchInput" class="search-input" placeholder="輸入你想吃的食物，例如：牛肉麵、義大利麵">
+            <button id="searchFoodButton" class="search-button">搜尋美食</button>
+        </div>
+
+        <p class="search-tip">點擊「搜尋美食」後，將在新分頁為你開啟 Google 地圖相關結果。</p>
+    </div>
+    
+    <script>
+        // --- 螢火蟲 JavaScript 邏輯 (保持不變) ---
+        const fireflyContainer = document.querySelector('.firefly-container');
+        const minFireflies = 15;
+        const fireflies = [];
+
+        function getRandomInt(min, max) {
+            min = Math.ceil(min);
+            max = Math.floor(max);
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        function animateFirefly(firefly) {
+            function flicker() {
+                firefly.style.left = `${getRandomInt(0, 100)}%`;
+                firefly.style.top = `${getRandomInt(0, 100)}%`;
+                firefly.style.display = 'block';
+
+                const flickerCount = getRandomInt(1, 3);
+                let currentFlicker = 0;
+
+                const singleFlickerDuration = getRandomInt(300, 600);
+                const pauseBetweenFlickers = getRandomInt(50, 150);
+
+                const doSingleFlicker = () => {
+                    if (currentFlicker < flickerCount) {
+                        firefly.style.opacity = 1;
+                        firefly.style.transform = `scale(${getRandomInt(10, 15) / 10})`;
+                        setTimeout(() => {
+                            firefly.style.opacity = 0;
+                            firefly.style.transform = 'scale(1)';
+                            currentFlicker++;
+                            if (currentFlicker < flickerCount) {
+                                setTimeout(doSingleFlicker, pauseBetweenFlickers);
+                            } else {
+                                const nextFlickerDelay = getRandomInt(1000, 5000);
+                                setTimeout(flicker, nextFlickerDelay);
+                            }
+                        }, singleFlickerDuration);
+                    }
+                };
+                
+                doSingleFlicker();
+            }
+
+            const initialDelay = getRandomInt(0, 2000);
+            setTimeout(flicker, initialDelay);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // 初始化螢火蟲
+            for (let i = 0; i < minFireflies; i++) {
+                const firefly = document.createElement('span');
+                firefly.className = 'firefly';
+                fireflyContainer.appendChild(firefly);
+                fireflies.push(firefly);
+                animateFirefly(firefly);
+            }
+
+            // --- 搜尋邏輯 ---
+            const searchFoodButton = document.getElementById('searchFoodButton');
+            const foodSearchInput = document.getElementById('foodSearchInput');
+
+            searchFoodButton.addEventListener('click', () => {
+                const query = foodSearchInput.value.trim();
+                if (query) {
+                    // 使用 Google 地圖的搜尋連結
+                    // encodeURIComponent 用於將查詢字串編碼，避免特殊字元造成問題
+                    const searchUrl = `https://www.google.com/maps/search/${encodeURIComponent(query + ' 餐廳')}`;
+                    window.open(searchUrl, '_blank'); // 在新分頁打開
+                } else {
+                    alert('請輸入您想搜尋的食物！');
+                }
+            });
+
+            // 允許按 Enter 鍵進行搜尋
+            foodSearchInput.addEventListener('keypress', (event) => {
+                if (event.key === 'Enter') {
+                    searchFoodButton.click();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

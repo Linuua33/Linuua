@@ -1,27 +1,194 @@
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="zh-TW">
 <head>
-    <header>
-        <h1 id="4">歌詞</h1>
-        <h6>C113156206 林家羽</h6>
-    </header>
-    <meta charset="utf-8">
-    <title>歌詞</title>
-    <li><a href="#1">舒適圈</a></li>
-    <li><a href="#2">回望</a></li>
-    <li><a href="#3">我可以自己點燃火炬</a></li>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的避難所</title>
+    <style>
+        /* --- 基本樣式 --- */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background: #181c24;
+            color: #f5f6fa;
+            min-height: 100vh;
+            overflow: hidden; /* 防止螢火蟲超出視窗導致滾動條 */
+        }
+
+        /* --- 螢火蟲背景 --- */
+        .firefly-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none; /* 讓螢火蟲不阻擋滑鼠事件 */
+            z-index: 0; /* 螢火蟲在最底層 */
+            overflow: hidden;
+        }
+
+        .firefly {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: radial-gradient(circle, #ffe780 0%, transparent 70%); /* 螢火蟲發光效果 */
+            border-radius: 50%;
+            opacity: 0; /* 初始隱藏 */
+            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out; /* 用於平滑的出現/消失和縮放 */
+        }
+
+        /* --- 入口區塊 (歡迎畫面) --- */
+        .center-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            position: relative;
+            z-index: 1; /* 入口區塊在螢火蟲之上 */
+        }
+
+        /* --- 洞穴按鈕樣式 --- */
+        .cave-svg-btn {
+            width: 120px;
+            height: 120px;
+            border: none;
+            background: none;
+            padding: 0;
+            position: relative;
+            cursor: pointer;
+            outline: none;
+            transition: transform 0.25s cubic-bezier(0.77, 0, 0.18, 1);
+        }
+
+        .cave-svg-btn:hover {
+            transform: scale(1.13);
+        }
+
+        /* --- 指示箭頭樣式 --- */
+        .arrow-container {
+            position: absolute;
+            top: 135px;
+            left: 55px;
+            transform: scaleY(-1); /* 垂直翻轉 */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            pointer-events: none;
+            z-index: 2; /* 箭頭在最上層 */
+        }
+
+        .arrow-label {
+            color: #fff;
+            font-size: 1.1rem;
+            margin-bottom: -40px;
+            letter-spacing: 0.1em;
+            text-shadow: 0 2px 8px #000, 0 0 10px #222;
+            white-space: nowrap;
+            pointer-events: none;
+            transform: scaleY(-1) translateX(90px); /* 再次翻轉文字並位移 */
+        }
+
+        .svg-wrapper {
+            transform: rotate(30deg); /* 旋轉箭頭SVG */
+        }
+
+        .arrow-svg {
+            width: 80px;
+            height: 80px;
+            display: block;
+            pointer-events: none;
+            animation: arrowMove 1.2s infinite alternate; /* 箭頭跳動動畫 */
+        }
+
+        @keyframes arrowMove {
+            0% { transform: translateY(0) scale(1); }
+            100% { transform: translateY(8px) scale(1.05); }
+        }
+    </style>
 </head>
 <body>
-    
-    <h1 id="1">舒適圈</h1>
-    <h3>Jackson Yee</h3>
-    <pre>
-    一步一遙 時光如飛鳥
-    人們不得不告別啊 對不起
-    走得再遠 請把手抓牢
-    風箏為何飛得高
-    因為地上有人 蹣跚奔跑
-    </pre>
-    <a href="#4">top</a>
+    <div class="firefly-container"></div>
+
+    <div class="center-container" id="welcome-section">
+        <h1 style="text-align: center; font-size: 2.8rem; letter-spacing: 0.2em; margin-bottom: 0;">我的避難所</h1>
+        <div style="position: relative; display: flex; align-items: center;">
+            <button class="cave-svg-btn" onclick="window.location.href='choose.html'" aria-label="進入避難所">
+                <svg viewBox="0 0 200 200">
+                    <path d="M20,180 Q100,10 180,180 Z" fill="#5c4a3d" />
+                    <path d="M60,180 Q100,60 140,180 Z" fill="#1a1a1a" />
+                    <ellipse cx="100" cy="185" rx="60" ry="15" fill="#444" />
+                </svg>
+            </button>
+            <div class="arrow-container">
+                <div class="arrow-label">點擊進入</div>
+                <div class="svg-wrapper">
+                    <svg class="arrow-svg" viewBox="0 0 80 80">
+                        <path d="M70,10 Q30,50 40,110" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" />
+                        <polygon points="35,100 45,115 48,102" fill="#fff" />
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const fireflyContainer = document.querySelector('.firefly-container');
+        const minFireflies = 15;
+        const fireflies = [];
+
+        function getRandomInt(min, max) {
+            min = Math.ceil(min);
+            max = Math.floor(max);
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        function animateFirefly(firefly) {
+            function flicker() {
+                firefly.style.left = `${getRandomInt(0, 100)}%`;
+                firefly.style.top = `${getRandomInt(0, 100)}%`;
+                firefly.style.display = 'block';
+
+                const flickerCount = getRandomInt(1, 3);
+                let currentFlicker = 0;
+
+                const singleFlickerDuration = getRandomInt(300, 600);
+                const pauseBetweenFlickers = getRandomInt(50, 150);
+
+                const doSingleFlicker = () => {
+                    if (currentFlicker < flickerCount) {
+                        firefly.style.opacity = 1;
+                        firefly.style.transform = `scale(${getRandomInt(10, 15) / 10})`;
+                        setTimeout(() => {
+                            firefly.style.opacity = 0;
+                            firefly.style.transform = 'scale(1)';
+                            currentFlicker++;
+                            if (currentFlicker < flickerCount) {
+                                setTimeout(doSingleFlicker, pauseBetweenFlickers);
+                            } else {
+                                const nextFlickerDelay = getRandomInt(1000, 5000);
+                                setTimeout(flicker, nextFlickerDelay);
+                            }
+                        }, singleFlickerDuration);
+                    }
+                };
+                
+                doSingleFlicker();
+            }
+
+            const initialDelay = getRandomInt(0, 2000);
+            setTimeout(flicker, initialDelay);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            for (let i = 0; i < minFireflies; i++) {
+                const firefly = document.createElement('span');
+                firefly.className = 'firefly';
+                fireflyContainer.appendChild(firefly);
+                fireflies.push(firefly);
+                animateFirefly(firefly);
+            }
+        });
+    </script>
 </body>
 </html>

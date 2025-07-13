@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>所有日語流行音樂 - Sanctuary</title>
+    <style>
+        /* CSS 樣式：美觀且響應式，實現「一列歌單」效果 */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #181c24; /* 與主頁面保持一致的背景色 */
+            color: #f5f6fa;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+            overflow-x: hidden; /* 防止水平滾動條 */
+        }
+        .music-container {
+            background-color: transparent; /* 主容器背景透明 */
+            padding: 40px;
+            border-radius: 15px;
+            text-align: center;
+            max-width: 900px; /* 限制最大寬度，保持視覺舒適 */
+            width: 100%;
+            margin-top: 50px;
+            z-index: 1; /* 確保內容在螢火蟲之上 */
+        }
+        h1 {
+            color: #80ffe7;
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+            text-shadow: 0 0 10px rgba(128, 255, 231, 0.4); /* 發光效果 */
+        }
+        .song-cards-grid {
+            display: flex; /* 使用 Flexbox */
+            flex-direction: column; /* **關鍵：使歌曲卡片垂直堆疊成一列** */
+            gap: 15px; /* 卡片間距 */
+            margin-top: 30px;
+            width: 100%; /* 佔滿可用寬度 */
+        }
+
+        /* 歌曲卡片樣式 */
+        .song-card {
+            background-color: rgba(90, 98, 112, 0.1); /* 半透明背景 */
+            border: 1px solid rgba(128, 255, 231, 0.2); /* 淺色邊框用於區分 */
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            display: flex; /* **關鍵：讓圖片、標題、連結在卡片內部水平排列** */
+            align-items: center; /* 垂直居中對齊 */
+            padding: 15px 20px;
+            transition: background-color 0.4s ease, transform 0.3s ease, box-shadow 0.3s ease, border-color 0.4s ease; /* 平滑過渡效果 */
+            text-align: left; /* 文本左對齊 */
+        }
+        .song-card:hover {
+            background-color: rgba(90, 98, 112, 0.6); /* 鼠標懸停時更顯著 */
+            transform: translateY(-5px); /* 鼠標懸停時浮起動畫 */
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5); /* 鼠標懸停時陰影更明顯 */
+            border-color: #80ffe7; /* 鼠標懸停時邊框更亮 */
+        }
+        .song-card img {
+            width: 70px;
+            height: 70px;
+            border-radius: 8px;
+            object-fit: cover; /* 圖片裁剪以適應容器 */
+            object-position: center;
+            margin-right: 20px;
+            flex-shrink: 0; /* 防止圖片縮小 */
+        }
+        .song-card h3 {
+            font-size: 1.25rem;
+            margin: 0;
+            color: #f5f6fa;
+            flex-grow: 1; /* 標題佔據剩餘空間 */
+            white-space: nowrap; /* 不換行 */
+            overflow: hidden; /* 超出部分隱藏 */
+            text-overflow: ellipsis; /* 超出部分顯示省略號 */
+        }
+        .song-card-links {
+            display: flex;
+            gap: 15px; /* 連結按鈕間距 */
+            margin-left: 20px;
+            flex-shrink: 0; /* 防止連結按鈕縮小 */
+        }
+        .song-card-links a {
+            background-color: rgba(109, 118, 133, 0.7); /* 連結按鈕稍微透明 */
+            color: #f5f6fa;
+            padding: 10px 18px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 1rem;
+            transition: background-color 0.3s ease;
+            white-space: nowrap; /* 防止按鈕文字換行 */
+        }
+        .song-card-links a:hover {
+            background-color: #6a7280; /* 鼠標懸停時顏色變化 */
+        }
+        .back-button-music {
+            background-color: #ffe780; /* 暖色系按鈕 */
+            color: #181c24;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            text-decoration: none; /* 移除下劃線 */
+            display: inline-block; /* 讓 margin-top 生效 */
+            margin-top: 30px;
+        }
+        .back-button-music:hover {
+            background-color: #ffda47;
+            transform: translateY(-2px); /* 鼠標懸停時輕微上浮 */
+        }
+
+        /* 螢火蟲背景樣式 (保持不變) */
+        .firefly-container {
+            position: fixed; /* 固定在視窗中 */
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none; /* 不會阻擋鼠標事件 */
+            z-index: 0; /* 確保在內容之下 */
+            overflow: hidden;
+        }
+        .firefly {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: radial-gradient(circle, #ffe780 0%, transparent 70%); /* 螢火蟲發光效果 */
+            border-radius: 50%; /* 圓形 */
+            opacity: 0; /* 初始不可見 */
+            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+        }
+
+        /* RWD 響應式調整 */
+        @media (max-width: 768px) {
+            .music-container {
+                padding: 20px;
+                margin-top: 20px;
+            }
+            h1 {
+                font-size: 2rem;
+            }
+            .song-card {
+                flex-direction: column; /* 小螢幕下垂直堆疊 */
+                align-items: center; /* 居中對齊 */
+                padding: 15px;
+            }
+            .song-card img {
+                width: 80px; /* 圖片稍大一些 */
+                height: 80px;
+                margin-right: 0;
+                margin-bottom: 10px; /* 圖片下方留白 */
+            }
+            .song-card h3 {
+                font-size: 1.1rem;
+                text-align: center; /* 標題居中 */
+                width: 100%; /* 標題佔滿寬度 */
+                margin-bottom: 10px;
+                white-space: normal; /* 允許換行 */
+                overflow: visible; /* 不隱藏超出部分 */
+                text-overflow: clip; /* 不顯示省略號 */
+            }
+            .song-card-links {
+                flex-direction: row; /* 連結按鈕保持水平排列 */
+                gap: 10px;
+                margin-left: 0;
+                width: 100%; /* 連結按鈕佔滿寬度 */
+                justify-content: center; /* 連結按鈕居中 */
+            }
+            .song-card-links a {
+                padding: 8px 12px;
+                font-size: 0.9rem;
+            }
+        }
+        @media (max-width: 480px) {
+            .music-container {
+                padding: 15px;
+            }
+            h1 {
+                font-size: 1.8rem;
+            }
+            .song-card img {
+                width: 70px;
+                height: 70px;
+            }
+            .song-card h3 {
+                font-size: 1rem;
+            }
+            .song-card-links a {
+                padding: 7px 10px;
+                font-size: 0.85rem;
+            }
+            .back-button-music {
+                padding: 10px 20px;
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="firefly-container"></div>
+
+    <div class="music-container">
+        <h1>所有日語流行音樂</h1>
+        <div class="song-cards-grid" id="song-list-area">
+            </div>
+        <a href="music.html" class="back-button-music">返回歌手列表</a>
+    </div>
+
+    <script>
+        // 固定日語流行音樂列表數據庫
+        const allJapaneseSongs = [
+            { title: "Senbonzakura（千本桜）", artist: "WAGAKKIBAND", image: "https://i.ytimg.com/vi/K_xTet06SUo/hqdefault.jpg", youtubeLink: "https://www.youtube.com/watch?v=K_xTet06SUo" },
+            { title: "うっせぇわ (Usseewa)", artist: "Ado", image: "https://i.scdn.co/image/ab67616d0000b27389e3b38cb86ef8cfb0cd8def", youtubeLink: "https://www.youtube.com/watch?v=Qp3b-RXtz4w" },
+            { title: "願い～あの頃のキミへ～", artist: "當山みれい", image: "https://i.kfs.io/album/global/26776531,3v1/fit/500x500.jpg", youtubeLink: "https://www.youtube.com/watch?v=W_IkBXSyC_4" },
+            { title: "いやいいや", artist: "當山みれい", image: "https://i.ytimg.com/vi/lE_JUr_egiE/maxresdefault.jpg", youtubeLink: "https://www.youtube.com/watch?v=lE_JUr_egiE" },
+            { title: "踊", artist: "Ado", image: "https://i.kfs.io/album/global/113976162,0v1/fit/500x500.jpg", youtubeLink: "https://www.youtube.com/watch?v=lE_JUr_egiE" },
+        ];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const songListArea = document.getElementById('song-list-area');
+
+            songListArea.innerHTML = ''; // 清除現有內容
+
+            // 遍歷所有日語歌曲並生成卡片
+            allJapaneseSongs.forEach(song => {
+                const songCard = document.createElement('div');
+                songCard.className = 'song-card'; // 設定 class
+
+                // 組裝 HTML 結構
+                songCard.innerHTML = `
+                    <img src="${song.image}" alt="${song.title} 專輯封面">
+                    <h3>${song.title} - ${song.artist}</h3>
+                    <div class="song-card-links">
+                        ${song.kkboxLink ? `<a href="${song.kkboxLink}" target="_blank">KKBOX</a>` : ''}
+                        ${song.youtubeLink ? `<a href="${song.youtubeLink}" target="_blank">YouTube</a>` : ''}
+                    </div>
+                `;
+                songListArea.appendChild(songCard);
+            });
+
+            // 螢火蟲 JavaScript 邏輯 (保持不變)
+            const fireflyContainer = document.querySelector('.firefly-container');
+            const minFireflies = 15;
+            const fireflies = [];
+
+            function getRandomInt(min, max) {
+                min = Math.ceil(min);
+                max = Math.floor(max);
+                return Math.floor(Math.random() * (max - min + 1)) + min;
+            }
+
+            function animateFirefly(firefly) {
+                function flicker() {
+                    // 隨機設定螢火蟲位置
+                    firefly.style.left = `${getRandomInt(0, 100)}%`;
+                    firefly.style.top = `${getRandomInt(0, 100)}%`;
+                    firefly.style.display = 'block';
+
+                    const flickerCount = getRandomInt(1, 3); // 每次閃爍次數
+                    let currentFlicker = 0;
+
+                    const singleFlickerDuration = getRandomInt(300, 600); // 單次閃爍持續時間
+                    const pauseBetweenFlickers = getRandomInt(50, 150); // 每次閃爍間隔
+
+                    const doSingleFlicker = () => {
+                        if (currentFlicker < flickerCount) {
+                            firefly.style.opacity = 1; // 螢火蟲發光
+                            firefly.style.transform = `scale(${getRandomInt(10, 15) / 10})`; // 隨機大小變化
+                            setTimeout(() => {
+                                firefly.style.opacity = 0; // 螢火蟲熄滅
+                                firefly.style.transform = 'scale(1)';
+                                currentFlicker++;
+                                if (currentFlicker < flickerCount) {
+                                    setTimeout(doSingleFlicker, pauseBetweenFlickers);
+                                } else {
+                                    // 完成一次閃爍循環後，延遲一段時間再進行下一次
+                                    const nextFlickerDelay = getRandomInt(1000, 5000); // 下一次閃爍的間隔時間
+                                    setTimeout(flicker, nextFlickerDelay);
+                                }
+                            }, singleFlickerDuration);
+                        }
+                    };
+                    doSingleFlicker();
+                }
+                const initialDelay = getRandomInt(0, 2000); // 初始延遲，讓螢火蟲不同步出現
+                setTimeout(flicker, initialDelay);
+            }
+
+            // 創建螢火蟲
+            for (let i = 0; i < minFireflies; i++) {
+                const firefly = document.createElement('span');
+                firefly.className = 'firefly';
+                fireflyContainer.appendChild(firefly);
+                fireflies.push(firefly);
+                animateFirefly(firefly);
+            }
+        });
+    </script>
+</body>
+</html>
