@@ -3,13 +3,14 @@ name: Update CWB weather data
 on:
   push:
     branches: [ "master" ]
+  schedule:
+    - cron: "0 */3 * * *" # 🔥 加碼：每 3 小時自動半夜爬起來幫你抓天氣、自動更新網頁
   workflow_dispatch:
 
 jobs:
   update-weather:
     runs-on: ubuntu-latest
     
-    # 🔥 關鍵修正 1：在這裡直接塞給這個任務「最高寫入權限」！
     permissions:
       contents: write
 
@@ -17,7 +18,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          # 🔥 關鍵修正 2：讓 checkout 工具帶上自動生成的安全通行證
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Node.js
@@ -33,6 +33,7 @@ jobs:
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile
 
+      # 1. 叫機器人去抓最新的即時天氣資料
       - name: Run weather updater
         env:
           CWB_API_KEY: ${{ secrets.CWB_API_KEY }}
@@ -40,10 +41,16 @@ jobs:
           cd artifacts/wowo-app
           pnpm run fetch-weather
 
-      - name: Commit and Push changes
+      # 2. 關鍵補漏：抓完天氣後，叫機器人在雲端直接幫你把前端網頁重新 Build 打包！
+      - name: Build Frontend Application
         run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add .
-          git diff-index --quiet HEAD || git commit -m "chore: update cwb weather data [skip ci]"
-          git push origin HEAD:master
+          cd artifacts/wowo-app
+          pnpm run build
+
+      # 3. 終極全自動：直接把剛剛打包好、熱騰騰帶有新天氣的 dist 資料夾，自動推送到 gh-pages 分支！
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./artifacts/wowo-app/dist
+          publish_branch: gh-pages
