@@ -4,7 +4,7 @@ on:
   push:
     branches: [ "master" ]
   schedule:
-    - cron: "0 */3 * * *" # 🔥 加碼：每 3 小時自動半夜爬起來幫你抓天氣、自動更新網頁
+    - cron: "0 */3 * * *" # 每 3 小時自動半夜爬起來幫你抓天氣、自動更新網頁
   workflow_dispatch:
 
 jobs:
@@ -33,22 +33,25 @@ jobs:
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile
 
-      # 1. 叫機器人去抓最新的即時天氣資料
-      # 2. 打包時，把你在 GitHub 設定的密鑰，偽裝成前端要的 VITE_CWB_API_KEY！
-      - name: Build Frontend Application
+      # 🛠️ 步驟 1：只執行預建置（抓取氣象資料並存成 JSON，注入金鑰確保抓取成功）
+      - name: Fetch Latest Weather Data
         env:
+          CWB_API_KEY: ${{ secrets.CWB_API_KEY }}
           VITE_CWB_API_KEY: ${{ secrets.CWB_API_KEY }}
         run: |
           cd artifacts/wowo-app
-          pnpm run build
+          pnpm run prebuild
 
-      # 2. 關鍵補漏：抓完天氣後，叫機器人在雲端直接幫你把前端網頁重新 Build 打包！
+      # 🛠️ 步驟 2：正式打包前端網頁（把金鑰灌進環境變數，讓手機瀏覽器也能現場連線）
       - name: Build Frontend Application
+        env:
+          VITE_CWB_API_KEY: ${{ secrets.CWB_API_KEY }}
+          VITE_CWA_API_KEY: ${{ secrets.CWB_API_KEY }}
         run: |
           cd artifacts/wowo-app
           pnpm run build
 
-      # 3. 終極全自動：直接把剛剛打包好、熱騰騰帶有新天氣的 dist 資料夾，自動推送到 gh-pages 分支！
+      # 🚀 步驟 3：將帶有全新天氣與金鑰的 dist 資料夾自動推送到 gh-pages 分支
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
