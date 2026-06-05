@@ -1,10 +1,8 @@
 import { useEffect, useState } from "react";
 import { CloudSun, Umbrella, Sun, Thermometer } from "lucide-react";
+import { fetchCwbWeatherData, fetchLocalWeatherData, getWeatherValue } from '@/lib/weather';
 
 const LOCATION = { label: "台北市", cwbName: "臺北市" };
-const API_URL = import.meta.env.PROD
-  ? 'https://opendata.cwb.gov.tw/api/v1/rest/datastore/F-C0032-001'
-  : '/api-cwa/api/v1/rest/datastore/F-C0032-001';
 
 export default function WeatherSummary() {
   const [weather, setWeather] = useState({ temp: "--", condition: "讀取中...", feels: "--", rain: "--" });
@@ -22,16 +20,15 @@ export default function WeatherSummary() {
     async function fetchWeather() {
       setLoading(true);
       try {
-        const params = new URLSearchParams({
-          Authorization: apiKey,
-          locationName: LOCATION.cwbName,
-          elementName: "Wx,PoP,MinT,CI",
-          format: "JSON",
-        });
-        const res = await fetch(`${API_URL}?${params.toString()}`);
-        const data = await res.json();
-        const locData = data.records.location[0];
-        const getVal = (name: string) => locData.weatherElement.find((el: any) => el.elementName === name)?.time[0].parameter.parameterName;
+        let locData: any;
+        try {
+          locData = await fetchCwbWeatherData(LOCATION.cwbName, apiKey);
+        } catch (err) {
+          console.warn('WeatherSummary CWB API 直接存取失敗，改用快取資料', err);
+          locData = await fetchLocalWeatherData(LOCATION.cwbName);
+        }
+
+        const getVal = (name: string) => getWeatherValue(locData, name);
 
         if (!cancelled) {
           setWeather({

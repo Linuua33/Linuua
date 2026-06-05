@@ -4,6 +4,7 @@ import { PetStatus } from "@/components/PetStatus";
 import { useDataStore, usePetStore } from "@/store/petStore";
 import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
+import { fetchCwbWeatherData, fetchLocalWeatherData, getWeatherValue } from '@/lib/weather';
 import { 
   CloudSun, 
   ListTodo, 
@@ -38,34 +39,31 @@ export default function Dashboard() {
     const apiKey = import.meta.env.VITE_CWB_API_KEY;
 
     async function fetchSyncWeather() {
-      if (!apiKey) return;
-      try {
-        const params = new URLSearchParams({
-          Authorization: apiKey,
-          locationName: savedCwaName,
-          elementName: 'MinT,Wx',
-          format: 'JSON'
-        });
-        const res = await fetch(`${API_URL}?${params.toString()}`);
-        const data = await res.json();
-        
-        // 使用安全讀取 ?. 避免 500 錯誤導致程式崩潰
-        if (data.records?.location?.[0]) {
-          const elements = data.records.location[0].weatherElement;
-          
-          // 加上 : any 解決 TypeScript 紅線問題
-          const tempEl = elements.find((el: any) => el.elementName === 'MinT');
-          const statusEl = elements.find((el: any) => el.elementName === 'Wx');
+      if (!apiKey) {
+        setWeatherInfo(prev => ({ ...prev, loading: false }));
+        return;
+      }
 
-          setWeatherInfo({
-            temp: `${tempEl?.time?.[0]?.parameter?.parameterName || '--'}°`,
-            location: savedLabel,
-            status: statusEl?.time?.[0]?.parameter?.parameterName || '',
-            loading: false
-          });
+      try {
+        let locData: any;
+        try {
+          locData = await fetchCwbWeatherData(savedCwaName, apiKey);
+        } catch (err) {
+          console.warn('Dashboard CWB API 直接存取失敗，改用快取資料', err);
+          locData = await fetchLocalWeatherData(savedCwaName);
         }
+
+        const temp = getWeatherValue(locData, 'MinT');
+        const status = getWeatherValue(locData, 'Wx');
+
+        setWeatherInfo({
+          temp: `${temp || '--'}°`,
+          location: savedLabel,
+          status: status || '',
+          loading: false
+        });
       } catch (err) {
-        console.error("Dashboard 天氣讀取失敗");
+        console.error('Dashboard 天氣讀取失敗', err);
         setWeatherInfo(prev => ({ ...prev, loading: false }));
       }
     }

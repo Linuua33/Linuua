@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { CloudSun, Droplets, Umbrella, Sun, Thermometer, MapPin, MapPinOff } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { fetchCwbWeatherData, fetchLocalWeatherData, getWeatherValue } from '@/lib/weather';
 
 const LOCATIONS = [
   { id: 'taipei', label: '台北市', cwbName: '臺北市', lat: 25.0330, lon: 121.5654 },
@@ -96,34 +97,40 @@ export default function Weather() {
   // 抓取氣象資料
   useEffect(() => {
     const apiKey = import.meta.env.VITE_CWB_API_KEY;
-    if (!apiKey) return;
+    if (!apiKey) {
+      setError('尚未設定 API 金鑰');
+      return;
+    }
 
     async function fetchWeather() {
       setLoading(true);
-      try {
-        const params = new URLSearchParams({
-          Authorization: apiKey,
-          locationName: selectedLocation.cwbName,
-          elementName: 'Wx,PoP,MinT,CI',
-          format: 'JSON'
-        });
-        const res = await fetch(`${API_URL}?${params.toString()}`);
-        const data = await res.json();
-        const locData = data.records.location[0];
-        const getVal = (name: string) => locData.weatherElement.find((el: any) => el.elementName === name)?.time[0].parameter.parameterName;
+      let locData: any;
 
-        setWeather({
-          condition: getVal('Wx') ?? '未知',
-          rain: getVal('PoP') ? `${getVal('PoP')}%` : '--%',
-          temp: getVal('MinT') ? `${getVal('MinT')}°` : '--',
-          feels: getVal('CI') ?? '--',
-        });
+      try {
+        locData = await fetchCwbWeatherData(selectedLocation.cwbName, apiKey);
       } catch (err) {
-        setError('取得失敗');
+        console.warn('CWB API 直接存取失敗，改用快取資料', err);
+        try {
+          locData = await fetchLocalWeatherData(selectedLocation.cwbName);
+        } catch (fallbackErr) {
+          console.error('快取資料也取得失敗', fallbackErr);
+          setError('取得失敗');
+          return;
+        }
       } finally {
         setLoading(false);
       }
+
+      const getVal = (name: string) => getWeatherValue(locData, name);
+
+      setWeather({
+        condition: getVal('Wx') ?? '未知',
+        rain: getVal('PoP') ? `${getVal('PoP')}%` : '--%',
+        temp: getVal('MinT') ? `${getVal('MinT')}°` : '--',
+        feels: getVal('CI') ?? '--',
+      });
     }
+
     fetchWeather();
   }, [selectedLocation]);
 
