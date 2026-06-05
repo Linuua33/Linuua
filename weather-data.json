@@ -1,0 +1,950 @@
+{
+  "updated": "2026-06-05T20:31:54.471Z",
+  "locations": {
+    "臺北市": {
+      "locationName": "臺北市",
+      "weatherElement": [
+        {
+          "elementName": "Wx",
+          "time": [
+            {
+              "parameter": {
+                "parameterName": "晴時多雲"
+              }
+            }
+          ]
+        },
+        {
+          "elementName": "PoP",
+          "time": [
+            {
+              "parameter": {
+                "parameterName": "10"
+              }
+            }
+          ]
+        },
+        {
+          "elementName": "MinT",
+          "time": [
+            {
+              "parameter": {
+                "parameterName": "26"
+              }
+            }
+          ]
+        },
+        {
+          "elementName": "CI",
+          "time": [
+            {
+              "parameter": {
+                "parameterName": "舒適"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "新北市": {
+      "locationName": "新北市",
+      "weatherElement": [
+        {
+          "elementName": "Wx",
+          "time": [
+            {
+              "parameter": {
+                "parameterName": "晴時多雲"
+              }
+            }
+          ]
+        },
+        {
+          "elementName": "PoP",
+          "time": [
+            {
+              "parameter": {
+                "parameterName": "10"
+              }
+            }
+          ]
+        },
+        {
+          "elementName": "MinT",
+          "time": [
+            {
+              "parameter": {
+                "parameterName": "26"
+              }
+            }
+          ]
+        },
+        {
+          "elementName": "CI",
+          "time": [
+            {
+              "parameter": {
+                "parameterName": "舒適"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "桃園市": {
+      "locationName": "桃園市",
+      "weatherElement": [
+        {
+          "elementName": "Wx",
+          "time": [
+            {
+              "parameter": {
+                "parameterName": "晴時多雲"
+              }
+            }
+          ]
+        },
+        {
+          "elementName": "PoP",
+          "time": [
+            {
+              "parameter": {
+                "parameterName": "10"
+              }
+            }
+          ]
+        },
+        {
+          "elementName": "MinT",
+          "time": [
+            {
+              "parameter": {
+                "parameterName": "26"
+              }
+            }
+          ]
+        },
+        {
+          "elementName": "CI",
+          "time": [
+            {
+              "parameter": {
+                "parameterName": "舒適"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "新竹市": {
+      "locationName": "新竹市",
+      "weatherElement": [
+        {
+          "elementName": "Wx",
+          "time": [
+            {
+              "parameter": {
+                "parameterName": "晴時多雲"
+              }
+            }
+          ]
+        },
+        {
+          "elementName": "PoP",
+          "time": [
+            {
+              "parameter": {
+                "parameterName": "10"
+              }
+            }
+          ]
+        },
+        {
+          "elementName": "MinT",
+          "time": [
+            {
+              "parameter": {
+                "parameterName": "26"
+              }
+            }
+          ]
+        },
+        {
+          "elementName": "CI",
+          "time": [
+            {
+              "parameter": {
+                "parameterName": "舒適"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "新竹縣": {
+      "locationName": "新竹縣",
+      "weatherElement": [
+        {
+          "elementName": "Wx",
+          "time": [
+            {
+              "parameter": {
+                "parameterName": "晴時多雲"
+              }
+            }
+          ]
+        },
+        {
+          "elementName": "PoP",
+          "time": [
+            {
+              "parameter": {
+                "parameterName": "10"
+              }
+            }
+          ]
+        },
+        {
+          "elementName": "MinT",
+          "time": [
+            {
+              "parameter": {
+                "parameterName": "26"
+              }
+            }
+          ]
+        },
+        {
+          "elementName": "CI",
+          "time": [
+            {
+              "parameter": {
+                "parameterName": "舒適"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "苗栗縣": {
+      "locationName": "苗栗縣",
+      "weatherElement": [
+        {
+          "elementName": "Wx",
+          "time": [
+            {
+              "parameter": {
+                "parameterName": "晴時多雲"
+              }
+            }
+          ]
+        },
+        {
+          "elementName": "PoP",
+          "time": [
+            {
+              "parameter": {
+                "parameterName": "10"
+              }
+            }
+          ]
+        },
+        {
+          "elementName": "MinT",
+          "time": [
+            {
+              "parameter": {
+                "parameterName": "26"
+              }
+            }
+          ]
+        },
+        {
+          "elementName": "CI",
+          "time": [
+            {
+              "parameter": {
+                "parameterName": "舒適"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "臺中市": {
+      "locationName": "臺中市",
+      "weatherElement": [
+        {
+          "elementName": "Wx",
+          "time": [
+            {
+              "parameter": {
+                "parameterName": "晴時多雲"
+              }
+            }
+          ]
+        },
+        {
+          "elementName": "PoP",
+          "time": [
+            {
+              "parameter": {
+                "parameterName": "10"
+              }
+            }
+          ]
+        },
+        {
+          "elementName": "MinT",
+          "time": [
+            {
+              "parameter": {
+                "parameterName": "26"
+              }
+            }
+          ]
+        },
+        {
+          "elementName": "CI",
+          "time": [
+            {
+              "parameter": {
+                "parameterName": "舒適"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "彰化縣": {
+      "locationName": "彰化縣",
+      "weatherElement": [
+        {
+          "elementName": "Wx",
+          "time": [
+            {
+              "parameter": {
+                "parameterName": "晴時多雲"
+              }
+            }
+          ]
+        },
+        {
+          "elementName": "PoP",
+          "time": [
+            {
+              "parameter": {
+                "parameterName": "10"
+              }
+            }
+          ]
+        },
+        {
+          "elementName": "MinT",
+          "time": [
+            {
+              "parameter": {
+                "parameterName": "26"
+              }
+            }
+          ]
+        },
+        {
+          "elementName": "CI",
+          "time": [
+            {
+              "parameter": {
+                "parameterName": "舒適"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "南投縣": {
+      "locationName": "南投縣",
+      "weatherElement": [
+        {
+          "elementName": "Wx",
+          "time": [
+            {
+              "parameter": {
+                "parameterName": "晴時多雲"
+              }
+            }
+          ]
+        },
+        {
+          "elementName": "PoP",
+          "time": [
+            {
+              "parameter": {
+                "parameterName": "10"
+              }
+            }
+          ]
+        },
+        {
+          "elementName": "MinT",
+          "time": [
+            {
+              "parameter": {
+                "parameterName": "26"
+              }
+            }
+          ]
+        },
+        {
+          "elementName": "CI",
+          "time": [
+            {
+              "parameter": {
+                "parameterName": "舒適"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "雲林縣": {
+      "locationName": "雲林縣",
+      "weatherElement": [
+        {
+          "elementName": "Wx",
+          "time": [
+            {
+              "parameter": {
+                "parameterName": "晴時多雲"
+              }
+            }
+          ]
+        },
+        {
+          "elementName": "PoP",
+          "time": [
+            {
+              "parameter": {
+                "parameterName": "10"
+              }
+            }
+          ]
+        },
+        {
+          "elementName": "MinT",
+          "time": [
+            {
+              "parameter": {
+                "parameterName": "26"
+              }
+            }
+          ]
+        },
+        {
+          "elementName": "CI",
+          "time": [
+            {
+              "parameter": {
+                "parameterName": "舒適"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "嘉義市": {
+      "locationName": "嘉義市",
+      "weatherElement": [
+        {
+          "elementName": "Wx",
+          "time": [
+            {
+              "parameter": {
+                "parameterName": "晴時多雲"
+              }
+            }
+          ]
+        },
+        {
+          "elementName": "PoP",
+          "time": [
+            {
+              "parameter": {
+                "parameterName": "10"
+              }
+            }
+          ]
+        },
+        {
+          "elementName": "MinT",
+          "time": [
+            {
+              "parameter": {
+                "parameterName": "26"
+              }
+            }
+          ]
+        },
+        {
+          "elementName": "CI",
+          "time": [
+            {
+              "parameter": {
+                "parameterName": "舒適"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "嘉義縣": {
+      "locationName": "嘉義縣",
+      "weatherElement": [
+        {
+          "elementName": "Wx",
+          "time": [
+            {
+              "parameter": {
+                "parameterName": "晴時多雲"
+              }
+            }
+          ]
+        },
+        {
+          "elementName": "PoP",
+          "time": [
+            {
+              "parameter": {
+                "parameterName": "10"
+              }
+            }
+          ]
+        },
+        {
+          "elementName": "MinT",
+          "time": [
+            {
+              "parameter": {
+                "parameterName": "26"
+              }
+            }
+          ]
+        },
+        {
+          "elementName": "CI",
+          "time": [
+            {
+              "parameter": {
+                "parameterName": "舒適"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "臺南市": {
+      "locationName": "臺南市",
+      "weatherElement": [
+        {
+          "elementName": "Wx",
+          "time": [
+            {
+              "parameter": {
+                "parameterName": "晴時多雲"
+              }
+            }
+          ]
+        },
+        {
+          "elementName": "PoP",
+          "time": [
+            {
+              "parameter": {
+                "parameterName": "10"
+              }
+            }
+          ]
+        },
+        {
+          "elementName": "MinT",
+          "time": [
+            {
+              "parameter": {
+                "parameterName": "26"
+              }
+            }
+          ]
+        },
+        {
+          "elementName": "CI",
+          "time": [
+            {
+              "parameter": {
+                "parameterName": "舒適"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "高雄市": {
+      "locationName": "高雄市",
+      "weatherElement": [
+        {
+          "elementName": "Wx",
+          "time": [
+            {
+              "parameter": {
+                "parameterName": "晴時多雲"
+              }
+            }
+          ]
+        },
+        {
+          "elementName": "PoP",
+          "time": [
+            {
+              "parameter": {
+                "parameterName": "10"
+              }
+            }
+          ]
+        },
+        {
+          "elementName": "MinT",
+          "time": [
+            {
+              "parameter": {
+                "parameterName": "26"
+              }
+            }
+          ]
+        },
+        {
+          "elementName": "CI",
+          "time": [
+            {
+              "parameter": {
+                "parameterName": "舒適"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "屏東縣": {
+      "locationName": "屏東縣",
+      "weatherElement": [
+        {
+          "elementName": "Wx",
+          "time": [
+            {
+              "parameter": {
+                "parameterName": "晴時多雲"
+              }
+            }
+          ]
+        },
+        {
+          "elementName": "PoP",
+          "time": [
+            {
+              "parameter": {
+                "parameterName": "10"
+              }
+            }
+          ]
+        },
+        {
+          "elementName": "MinT",
+          "time": [
+            {
+              "parameter": {
+                "parameterName": "26"
+              }
+            }
+          ]
+        },
+        {
+          "elementName": "CI",
+          "time": [
+            {
+              "parameter": {
+                "parameterName": "舒適"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "臺東縣": {
+      "locationName": "臺東縣",
+      "weatherElement": [
+        {
+          "elementName": "Wx",
+          "time": [
+            {
+              "parameter": {
+                "parameterName": "晴時多雲"
+              }
+            }
+          ]
+        },
+        {
+          "elementName": "PoP",
+          "time": [
+            {
+              "parameter": {
+                "parameterName": "10"
+              }
+            }
+          ]
+        },
+        {
+          "elementName": "MinT",
+          "time": [
+            {
+              "parameter": {
+                "parameterName": "26"
+              }
+            }
+          ]
+        },
+        {
+          "elementName": "CI",
+          "time": [
+            {
+              "parameter": {
+                "parameterName": "舒適"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "花蓮縣": {
+      "locationName": "花蓮縣",
+      "weatherElement": [
+        {
+          "elementName": "Wx",
+          "time": [
+            {
+              "parameter": {
+                "parameterName": "晴時多雲"
+              }
+            }
+          ]
+        },
+        {
+          "elementName": "PoP",
+          "time": [
+            {
+              "parameter": {
+                "parameterName": "10"
+              }
+            }
+          ]
+        },
+        {
+          "elementName": "MinT",
+          "time": [
+            {
+              "parameter": {
+                "parameterName": "26"
+              }
+            }
+          ]
+        },
+        {
+          "elementName": "CI",
+          "time": [
+            {
+              "parameter": {
+                "parameterName": "舒適"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "宜蘭縣": {
+      "locationName": "宜蘭縣",
+      "weatherElement": [
+        {
+          "elementName": "Wx",
+          "time": [
+            {
+              "parameter": {
+                "parameterName": "晴時多雲"
+              }
+            }
+          ]
+        },
+        {
+          "elementName": "PoP",
+          "time": [
+            {
+              "parameter": {
+                "parameterName": "10"
+              }
+            }
+          ]
+        },
+        {
+          "elementName": "MinT",
+          "time": [
+            {
+              "parameter": {
+                "parameterName": "26"
+              }
+            }
+          ]
+        },
+        {
+          "elementName": "CI",
+          "time": [
+            {
+              "parameter": {
+                "parameterName": "舒適"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "澎湖縣": {
+      "locationName": "澎湖縣",
+      "weatherElement": [
+        {
+          "elementName": "Wx",
+          "time": [
+            {
+              "parameter": {
+                "parameterName": "晴時多雲"
+              }
+            }
+          ]
+        },
+        {
+          "elementName": "PoP",
+          "time": [
+            {
+              "parameter": {
+                "parameterName": "10"
+              }
+            }
+          ]
+        },
+        {
+          "elementName": "MinT",
+          "time": [
+            {
+              "parameter": {
+                "parameterName": "26"
+              }
+            }
+          ]
+        },
+        {
+          "elementName": "CI",
+          "time": [
+            {
+              "parameter": {
+                "parameterName": "舒適"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "金門縣": {
+      "locationName": "金門縣",
+      "weatherElement": [
+        {
+          "elementName": "Wx",
+          "time": [
+            {
+              "parameter": {
+                "parameterName": "晴時多雲"
+              }
+            }
+          ]
+        },
+        {
+          "elementName": "PoP",
+          "time": [
+            {
+              "parameter": {
+                "parameterName": "10"
+              }
+            }
+          ]
+        },
+        {
+          "elementName": "MinT",
+          "time": [
+            {
+              "parameter": {
+                "parameterName": "26"
+              }
+            }
+          ]
+        },
+        {
+          "elementName": "CI",
+          "time": [
+            {
+              "parameter": {
+                "parameterName": "舒適"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "連江縣": {
+      "locationName": "連江縣",
+      "weatherElement": [
+        {
+          "elementName": "Wx",
+          "time": [
+            {
+              "parameter": {
+                "parameterName": "晴時多雲"
+              }
+            }
+          ]
+        },
+        {
+          "elementName": "PoP",
+          "time": [
+            {
+              "parameter": {
+                "parameterName": "10"
+              }
+            }
+          ]
+        },
+        {
+          "elementName": "MinT",
+          "time": [
+            {
+              "parameter": {
+                "parameterName": "26"
+              }
+            }
+          ]
+        },
+        {
+          "elementName": "CI",
+          "time": [
+            {
+              "parameter": {
+                "parameterName": "舒適"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
