@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { CloudSun, Droplets, Umbrella, Sun, Thermometer, MapPin, MapPinOff } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { getWeatherData, getWeatherValue } from '@/lib/weather';
 
 const LOCATIONS = [
   { id: 'taipei', label: '台北市', cwbName: '臺北市', lat: 25.0330, lon: 121.5654 },
@@ -90,26 +89,33 @@ export default function Weather() {
     }
   }, [handleGetLocation]);
 
-  // 抓取氣象資料
+  // 抓取氣象資料（🔥 核心修正：直接讀取雲端自動產生的 JSON 檔案，徹底拋棄瀏覽器端 API Key 的權限限制）
   useEffect(() => {
-    const apiKey = import.meta.env.VITE_CWB_API_KEY;
-    if (!apiKey) {
-      setError('尚未設定 API 金鑰');
-      return;
-    }
-
     async function fetchWeather() {
       setLoading(true);
+      setError(null);
       try {
-        const locData = await getWeatherData(selectedLocation.cwbName, apiKey);
-        const getVal = (name: string) => getWeatherValue(locData, name);
+        // 讀取打包在 public 的天氣資料
+        const response = await fetch(`${import.meta.env.BASE_URL}weather-data.json`);
+        if (!response.ok) throw new Error('讀取天氣檔案失敗');
+        
+        const allWeatherData = await response.json();
+        
+        // 支援多種常見的 JSON 結構命名方式，確保完美讀取到該城市的資料
+        const locData = allWeatherData[selectedLocation.cwbName] || 
+                        allWeatherData[selectedLocation.label] || 
+                        allWeatherData[selectedLocation.id];
 
-        setWeather({
-          condition: getVal('Wx') ?? '未知',
-          rain: getVal('PoP') ? `${getVal('PoP')}%` : '--%',
-          temp: getVal('MinT') ? `${getVal('MinT')}°` : '--',
-          feels: getVal('CI') ?? '--',
-        });
+        if (locData) {
+          setWeather({
+            condition: locData.Wx || locData.condition || '未知',
+            rain: locData.PoP !== undefined ? `${locData.PoP}%` : (locData.rain !== undefined ? `${locData.rain}` : '--%'),
+            temp: locData.MinT ? `${locData.MinT}°` : (locData.temp ? `${locData.temp}°` : '--'),
+            feels: locData.CI || locData.feels || '--',
+          });
+        } else {
+          console.warn(`在天氣檔案中找不到 ${selectedLocation.cwbName} 的欄位`);
+        }
       } catch (err) {
         console.error('取得天氣失敗', err);
         setError('取得失敗');
