@@ -1,6 +1,9 @@
 name: Update CWB weather data
 
 on:
+  push:
+    branches:
+      - master
   schedule:
     - cron: '0 * * * *'
   workflow_dispatch:
