@@ -29,6 +29,7 @@ jobs:
         env:
           CWB_API_KEY: ${{ secrets.CWB_API_KEY }}
         run: |
+          cd artifacts/wowo-app
           pnpm run update-weather
 
       - name: Commit and Push changes
