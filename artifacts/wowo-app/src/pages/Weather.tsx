@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { CloudSun, Droplets, Umbrella, Sun, Thermometer, MapPin, MapPinOff } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { getWeatherData, getWeatherValue } from '@/lib/weather';
 
 const LOCATIONS = [
   { id: 'taipei', label: '台北市', cwbName: '臺北市', lat: 25.0330, lon: 121.5654 },
@@ -27,7 +28,6 @@ const LOCATIONS = [
 ];
 
 export default function Weather() {
-  // 初始化時優先讀取暫存的選擇
   const [selectedLocation, setSelectedLocation] = useState(() => {
     const savedId = localStorage.getItem('user-location-id');
     return LOCATIONS.find(l => l.id === savedId) || LOCATIONS[0];
@@ -39,7 +39,6 @@ export default function Weather() {
   const [gpsStatus, setGpsStatus] = useState<'prompt' | 'granted' | 'denied'>('prompt');
   const [isAutoLocating, setIsAutoLocating] = useState(false);
 
-  // --- 同步函數：將選擇存入 localStorage 以便 Dashboard 讀取 ---
   const syncLocationToStorage = (loc: typeof LOCATIONS[0]) => {
     localStorage.setItem('user-location-id', loc.id);
     localStorage.setItem('user-location-cwb', loc.cwbName);
@@ -65,7 +64,7 @@ export default function Weather() {
       (position) => {
         const nearest = findNearestLocation(position.coords.latitude, position.coords.longitude);
         setSelectedLocation(nearest);
-        syncLocationToStorage(nearest); // 定位成功後同步
+        syncLocationToStorage(nearest);
         setGpsStatus('granted');
         setIsAutoLocating(false);
       },
@@ -89,36 +88,43 @@ export default function Weather() {
     }
   }, [handleGetLocation]);
 
-  // 抓取氣象資料（🔥 核心修正：直接讀取雲端自動產生的 JSON 檔案，徹底拋棄瀏覽器端 API Key 的權限限制）
+  // 🔥 核心修正：直接向氣象署 API 連線。如果打包時有灌入金鑰就用金鑰，沒有的話嘗試讀取環境變數。
   useEffect(() => {
+    // 同時相容兩種變數名稱，確保一定拿得到鑰匙
+    const apiKey = import.meta.env.VITE_CWB_API_KEY || import.meta.env.VITE_CWA_API_KEY;
+    
     async function fetchWeather() {
       setLoading(true);
       setError(null);
       try {
-        // 讀取打包在 public 的天氣資料
-        const response = await fetch(`${import.meta.env.BASE_URL}weather-data.json`);
-        if (!response.ok) throw new Error('讀取天氣檔案失敗');
-        
-        const allWeatherData = await response.json();
-        
-        // 支援多種常見的 JSON 結構命名方式，確保完美讀取到該城市的資料
-        const locData = allWeatherData[selectedLocation.cwbName] || 
-                        allWeatherData[selectedLocation.label] || 
-                        allWeatherData[selectedLocation.id];
+        // 直接現場跟氣象署連線抓即時資料
+        const locData = await getWeatherData(selectedLocation.cwbName, apiKey);
+        const getVal = (name: string) => getWeatherValue(locData, name);
 
-        if (locData) {
-          setWeather({
-            condition: locData.Wx || locData.condition || '未知',
-            rain: locData.PoP !== undefined ? `${locData.PoP}%` : (locData.rain !== undefined ? `${locData.rain}` : '--%'),
-            temp: locData.MinT ? `${locData.MinT}°` : (locData.temp ? `${locData.temp}°` : '--'),
-            feels: locData.CI || locData.feels || '--',
-          });
-        } else {
-          console.warn(`在天氣檔案中找不到 ${selectedLocation.cwbName} 的欄位`);
-        }
+        setWeather({
+          condition: getVal('Wx') ?? '未知',
+          rain: getVal('PoP') ? `${getVal('PoP')}%` : '--%',
+          temp: getVal('MinT') ? `${getVal('MinT')}°` : '--',
+          feels: getVal('CI') ?? '--',
+        });
       } catch (err) {
-        console.error('取得天氣失敗', err);
-        setError('取得失敗');
+        console.error('現場取得天氣失敗，嘗試讀取備用本地檔案', err);
+        // 如果現場抓失敗（例如沒金鑰），才降級去讀本地 JSON 當備案
+        try {
+          const response = await fetch(`${import.meta.env.BASE_URL}weather-data.json`);
+          const allWeatherData = await response.json();
+          const locData = allWeatherData[selectedLocation.cwbName] || allWeatherData[selectedLocation.label];
+          if (locData) {
+            setWeather({
+              condition: locData.Wx || locData.condition || '未知',
+              rain: locData.PoP !== undefined ? `${locData.PoP}%` : '--%',
+              temp: locData.MinT ? `${locData.MinT}°` : (locData.temp ? `${locData.temp}°` : '--'),
+              feels: locData.CI || locData.feels || '--',
+            });
+          }
+        } catch (jsonErr) {
+          setError('取得失敗');
+        }
       } finally {
         setLoading(false);
       }
@@ -163,7 +169,7 @@ export default function Weather() {
               const loc = LOCATIONS.find(l => l.id === e.target.value);
               if (loc) {
                 setSelectedLocation(loc);
-                syncLocationToStorage(loc); // 手動切換時同步
+                syncLocationToStorage(loc);
               }
             }}
             className="w-full p-4 bg-white shadow-sm rounded-2xl text-lg font-medium outline-none appearance-none cursor-pointer"
