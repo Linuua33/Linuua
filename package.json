@@ -1,0 +1,1 @@
+{"name":"interface-generator-selected","version":"0.0.0","private":true,"type":"module","scripts":{"build":"pnpm -r --if-present run build","typecheck":"pnpm -r --filter \"./artifacts/*\" --filter \"./lib/*\" --if-present run typecheck"}}
