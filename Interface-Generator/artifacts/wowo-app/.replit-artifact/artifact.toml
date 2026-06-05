@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "窩窩 - 互動式寵物提醒系統"
+version = "1.0.0"
+id = "artifacts/wowo-app"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 23734
+
+[services.development]
+run = "pnpm --filter @workspace/wowo-app run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/wowo-app", "run", "build" ]
+publicDir = "artifacts/wowo-app/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "23734"
+BASE_PATH = "/"
