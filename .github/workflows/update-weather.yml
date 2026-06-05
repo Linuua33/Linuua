@@ -34,12 +34,13 @@ jobs:
         run: pnpm install --no-frozen-lockfile
 
       # 1. 叫機器人去抓最新的即時天氣資料
-      - name: Run weather updater
+      # 2. 打包時，把你在 GitHub 設定的密鑰，偽裝成前端要的 VITE_CWB_API_KEY！
+      - name: Build Frontend Application
         env:
-          CWB_API_KEY: ${{ secrets.CWB_API_KEY }}
+          VITE_CWB_API_KEY: ${{ secrets.CWB_API_KEY }}
         run: |
           cd artifacts/wowo-app
-          pnpm run fetch-weather
+          pnpm run build
 
       # 2. 關鍵補漏：抓完天氣後，叫機器人在雲端直接幫你把前端網頁重新 Build 打包！
       - name: Build Frontend Application
