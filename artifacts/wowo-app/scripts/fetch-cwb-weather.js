@@ -86,9 +86,10 @@ async function buildWeatherData() {
     locations: {}
   };
 
-  if (env.VITE_CWB_API_KEY) {
+  const apiKey = process.env.CWB_API_KEY ?? env.VITE_CWB_API_KEY;
+  if (apiKey) {
     try {
-      const cwbData = await fetchCwbData(env.VITE_CWB_API_KEY);
+      const cwbData = await fetchCwbData(apiKey);
       for (const record of cwbData.records?.location || []) {
         weatherData.locations[record.locationName] = {
           locationName: record.locationName,
@@ -103,7 +104,7 @@ async function buildWeatherData() {
       console.warn('Unable to fetch CWB data, falling back to default offline weather data.', error);
     }
   } else {
-    console.warn('VITE_CWB_API_KEY is not set in .env, generating fallback weather data only.');
+    console.warn('CWB_API_KEY is not set, generating fallback weather data only.');
   }
 
   for (const locationName of LOCATION_NAMES) {

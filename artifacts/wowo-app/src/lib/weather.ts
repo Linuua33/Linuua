@@ -52,6 +52,18 @@ export async function fetchLocalWeatherData(locationName: string): Promise<Locat
   return locData as LocationData;
 }
 
+export async function getWeatherData(locationName: string, apiKey: string): Promise<LocationData> {
+  if (import.meta.env.PROD) {
+    return fetchLocalWeatherData(locationName);
+  }
+
+  try {
+    return await fetchCwbWeatherData(locationName, apiKey);
+  } catch (err) {
+    return await fetchLocalWeatherData(locationName);
+  }
+}
+
 export function getWeatherValue(locData: LocationData, name: string): string {
   return locData.weatherElement.find(el => el.elementName === name)?.time?.[0]?.parameter?.parameterName ?? '';
 }

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { CloudSun, Umbrella, Sun, Thermometer } from "lucide-react";
-import { fetchCwbWeatherData, fetchLocalWeatherData, getWeatherValue } from '@/lib/weather';
+import { getWeatherData, getWeatherValue } from '@/lib/weather';
 
 const LOCATION = { label: "台北市", cwbName: "臺北市" };
 
@@ -20,14 +20,7 @@ export default function WeatherSummary() {
     async function fetchWeather() {
       setLoading(true);
       try {
-        let locData: any;
-        try {
-          locData = await fetchCwbWeatherData(LOCATION.cwbName, apiKey);
-        } catch (err) {
-          console.warn('WeatherSummary CWB API 直接存取失敗，改用快取資料', err);
-          locData = await fetchLocalWeatherData(LOCATION.cwbName);
-        }
-
+        const locData = await getWeatherData(LOCATION.cwbName, apiKey);
         const getVal = (name: string) => getWeatherValue(locData, name);
 
         if (!cancelled) {

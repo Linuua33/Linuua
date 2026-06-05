@@ -4,7 +4,7 @@ import { PetStatus } from "@/components/PetStatus";
 import { useDataStore, usePetStore } from "@/store/petStore";
 import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
-import { fetchCwbWeatherData, fetchLocalWeatherData, getWeatherValue } from '@/lib/weather';
+import { getWeatherData, getWeatherValue } from '@/lib/weather';
 import { 
   CloudSun, 
   ListTodo, 
@@ -15,9 +15,6 @@ import {
   Sun 
 } from "lucide-react";
 import { motion } from "framer-motion";
-
-// 氣象局 API URL
-const API_URL = '/api-cwa/api/v1/rest/datastore/F-C0032-001';
 
 export default function Dashboard() {
   const { reminders, toggleReminder } = useDataStore();
@@ -45,14 +42,7 @@ export default function Dashboard() {
       }
 
       try {
-        let locData: any;
-        try {
-          locData = await fetchCwbWeatherData(savedCwaName, apiKey);
-        } catch (err) {
-          console.warn('Dashboard CWB API 直接存取失敗，改用快取資料', err);
-          locData = await fetchLocalWeatherData(savedCwaName);
-        }
-
+        const locData = await getWeatherData(savedCwaName, apiKey);
         const temp = getWeatherValue(locData, 'MinT');
         const status = getWeatherValue(locData, 'Wx');
 
