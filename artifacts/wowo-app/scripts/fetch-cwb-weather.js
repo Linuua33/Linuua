@@ -60,7 +60,7 @@ function makeLocationData(locationName) {
 }
 
 async function fetchCwbData(apiKey) {
-  const url = new URL('https://opendata.cwb.gov.tw/api/v1/rest/datastore/F-C0032-001');
+  const url = new URL('https://opendata.cwa.gov.tw/api/v1/rest/datastore/F-C0032-001');
   url.searchParams.set('Authorization', apiKey);
   url.searchParams.set('elementName', 'Wx,PoP,MinT,CI');
   url.searchParams.set('format', 'JSON');
