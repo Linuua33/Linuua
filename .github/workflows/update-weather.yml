@@ -8,9 +8,17 @@ on:
 jobs:
   update-weather:
     runs-on: ubuntu-latest
+    
+    # 🔥 關鍵修正 1：在這裡直接塞給這個任務「最高寫入權限」！
+    permissions:
+      contents: write
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          # 🔥 關鍵修正 2：讓 checkout 工具帶上自動生成的安全通行證
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
