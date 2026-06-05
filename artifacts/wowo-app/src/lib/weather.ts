@@ -2,7 +2,7 @@ export const CWB_API_URL = import.meta.env.PROD
   ? 'https://opendata.cwb.gov.tw/api/v1/rest/datastore/F-C0032-001'
   : '/api-cwa/api/v1/rest/datastore/F-C0032-001';
 
-export const LOCAL_WEATHER_URL = '/weather-data.json';
+export const LOCAL_WEATHER_URL = `${import.meta.env.BASE_URL}weather-data.json`;
 
 export type WeatherElement = {
   elementName: string;
