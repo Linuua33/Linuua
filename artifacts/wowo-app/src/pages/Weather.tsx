@@ -26,7 +26,9 @@ const LOCATIONS = [
   { id: 'lienchiang', label: '連江縣', cwbName: '連江縣', lat: 26.1517, lon: 119.9298 },
 ];
 
-const API_URL = '/api-cwa/api/v1/rest/datastore/F-C0032-001';
+const API_URL = import.meta.env.PROD
+  ? 'https://opendata.cwb.gov.tw/api/v1/rest/datastore/F-C0032-001'
+  : '/api-cwa/api/v1/rest/datastore/F-C0032-001';
 
 export default function Weather() {
   // 初始化時優先讀取暫存的選擇

@@ -2,7 +2,9 @@ import { useEffect, useState } from "react";
 import { CloudSun, Umbrella, Sun, Thermometer } from "lucide-react";
 
 const LOCATION = { label: "台北市", cwbName: "臺北市" };
-const API_URL = "/api-cwa/api/v1/rest/datastore/F-C0032-001";
+const API_URL = import.meta.env.PROD
+  ? 'https://opendata.cwb.gov.tw/api/v1/rest/datastore/F-C0032-001'
+  : '/api-cwa/api/v1/rest/datastore/F-C0032-001';
 
 export default function WeatherSummary() {
   const [weather, setWeather] = useState({ temp: "--", condition: "讀取中...", feels: "--", rain: "--" });
