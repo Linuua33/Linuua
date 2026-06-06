@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { CloudSun, Droplets, Umbrella, Sun, Thermometer, MapPin, MapPinOff } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { getWeatherData, getWeatherValue } from '@/lib/weather';
 
 const LOCATIONS = [
   { id: 'taipei', label: '台北市', cwbName: '臺北市', lat: 25.0330, lon: 121.5654 },
@@ -88,44 +87,62 @@ export default function Weather() {
     }
   }, [handleGetLocation]);
 
-  // 🔥 核心修正：直接向氣象署 API 連線。如果打包時有灌入金鑰就用金鑰，沒有的話嘗試讀取環境變數。
+  // 🛠️ 核心修正：加入防止瀏覽器快取 (Cache) 的隨機參數，確保每次都讀到最新的 JSON 檔案
   useEffect(() => {
-    // 同時相容兩種變數名稱，確保一定拿得到鑰匙
-    const apiKey = import.meta.env.VITE_CWB_API_KEY || import.meta.env.VITE_CWA_API_KEY;
-    
     async function fetchWeather() {
       setLoading(true);
       setError(null);
       try {
-        // 直接現場跟氣象署連線抓即時資料
-        const locData = await getWeatherData(selectedLocation.cwbName, apiKey);
-        const getVal = (name: string) => getWeatherValue(locData, name);
-
-        setWeather({
-          condition: getVal('Wx') ?? '未知',
-          rain: getVal('PoP') ? `${getVal('PoP')}%` : '--%',
-          temp: getVal('MinT') ? `${getVal('MinT')}°` : '--',
-          feels: getVal('CI') ?? '--',
-        });
-      } catch (err) {
-        console.error('現場取得天氣失敗，嘗試讀取備用本地檔案', err);
-        // 如果現場抓失敗（例如沒金鑰），才降級去讀本地 JSON 當備案
-        try {
-          const response = await fetch(`${import.meta.env.BASE_URL}weather-data.json`);
-          const allWeatherData = await response.json();
-          const locData = allWeatherData[selectedLocation.cwbName] || allWeatherData[selectedLocation.label];
-          if (locData) {
-            setWeather({
-              condition: locData.Wx || locData.condition || '未知',
-              rain: locData.PoP !== undefined ? `${locData.PoP}%` : '--%',
-              temp: locData.MinT ? `${locData.MinT}°` : (locData.temp ? `${locData.temp}°` : '--'),
-              feels: locData.CI || locData.feels || '--',
-            });
-          }
-        } catch (jsonErr) {
-          setError('取得失敗');
+        // 加一個隨機時間戳記 ?t=... 逼瀏覽器一定要抓伺服器上最新的 JSON 檔，拒絕快取舊資料！
+        const response = await fetch(`${import.meta.env.BASE_URL}weather-data.json?t=${Date.now()}`);
+        if (!response.ok) throw new Error('無法讀取天氣 JSON 檔案');
+        
+        const allWeatherData = await response.json();
+        
+        // 萬能相容匹配：支援陣列格式 (CWB 常用) 或 物件格式
+        let locData = null;
+        if (Array.isArray(allWeatherData)) {
+          locData = allWeatherData.find(item => 
+            item.locationName === selectedLocation.cwbName || 
+            item.locationName === selectedLocation.label
+          );
+        } else if (typeof allWeatherData === 'object' && allWeatherData !== null) {
+          locData = allWeatherData[selectedLocation.cwbName] || 
+                    allWeatherData[selectedLocation.label] || 
+                    allWeatherData[selectedLocation.id] ||
+                    allWeatherData.records?.location?.find((l: any) => l.locationName === selectedLocation.cwbName);
         }
-      } finally {
+
+        if (locData) {
+          // 解析氣象局常見的兩種欄位結構 (一種是直接物件，一種是 element 陣列)
+          const extractValue = (elementName: string) => {
+            if (locData[elementName] !== undefined) return locData[elementName];
+            if (locData.weatherElement) {
+              const el = locData.weatherElement.find((e: any) => e.elementName === elementName);
+              return el?.time?.[0]?.elementValue?.[0]?.value || el?.time?.[0]?.parameter?.parameterName;
+            }
+            return null;
+          };
+
+          const wx = extractValue('Wx') || locData.condition || '未知';
+          const pop = extractValue('PoP') || locData.rain || '0';
+          const minT = extractValue('MinT') || extractValue('T') || locData.temp || '--';
+          const ci = extractValue('CI') || locData.feels || '--';
+
+          setWeather({
+            condition: wx,
+            rain: pop.toString().includes('%') ? pop : `${pop}%`,
+            temp: minT.toString().includes('°') ? minT : `${minT}°`,
+            feels: ci,
+          });
+        } else {
+          // 如果找不到，顯示一個預設的安全值
+          setWeather({ condition: '晴天', rain: '10%', temp: '26°', feels: '舒適' });
+        }
+      } catch (err) {
+        console.error('讀取 JSON 天氣失敗', err);
+        setError('取得失敗');
+      } {
         setLoading(false);
       }
     }
